@@ -1,4 +1,4 @@
-"""Fetches Jeff's live leaderboard every run, rebuilds data.json (table-cell parser)."""
+"""Fetches Jeff's live leaderboard every run, rebuilds data.json (Excel-tolerant parser)."""
 import json, datetime, urllib.request
 from html.parser import HTMLParser
 URL="https://www.jeffkeencharitychallenge.co.uk/worldcup2026/tables/Leaderboard.html"
@@ -6,25 +6,34 @@ OURS=["WCP-10964","WCP-10965","WCP-10966"]
 
 class T(HTMLParser):
     def __init__(s):
-        super().__init__(); s.rows=[]; s.row=None; s.cell=None
-    def handle_starttag(s,tag,a):
-        if tag=="tr": s.row=[]
-        elif tag in("td","th") and s.row is not None: s.cell=""
-    def handle_endtag(s,tag):
-        if tag in("td","th") and s.cell is not None and s.row is not None:
+        super().__init__(convert_charrefs=True); s.rows=[]; s.row=None; s.cell=None
+    def _close_cell(s):
+        if s.cell is not None and s.row is not None:
             s.row.append(" ".join(s.cell.split())); s.cell=None
-        elif tag=="tr" and s.row is not None:
-            if s.row: s.rows.append(s.row)
-            s.row=None
+    def _close_row(s):
+        s._close_cell()
+        if s.row: s.rows.append(s.row)
+        s.row=None
+    def handle_starttag(s,tag,a):
+        if tag=="tr":
+            s._close_row(); s.row=[]
+        elif tag in("td","th"):
+            if s.row is None: s.row=[]
+            s._close_cell(); s.cell=""
+    def handle_endtag(s,tag):
+        if tag in("td","th"): s._close_cell()
+        elif tag in("tr","table"): s._close_row()
     def handle_data(s,d):
         if s.cell is not None: s.cell+=d
 
 def fetch():
     req=urllib.request.Request(URL,headers={"User-Agent":"Mozilla/5.0 (DecSamDashboard)","Cache-Control":"no-cache"})
-    return urllib.request.urlopen(req,timeout=30).read().decode("utf-8","ignore")
+    raw=urllib.request.urlopen(req,timeout=30).read()
+    raw=raw.replace(b"\x00",b"")
+    return raw.decode("utf-8","ignore"), len(raw)
 
 def parse(page):
-    p=T(); p.feed(page); out=[]
+    p=T(); p.feed(page); p._close_row(); out=[]
     for cells in p.rows:
         idx=[i for i,c in enumerate(cells) if c.startswith("WCP-")]
         if not idx: continue
@@ -45,7 +54,11 @@ def main():
     base=json.load(open("data.json"))
     prev={e["id"]:e for e in base.get("leaderboard",[])}
     try:
-        rows=parse(fetch())
+        page,nb=fetch()
+        rows=parse(page)
+        print("fetched",nb,"bytes ->",len(rows),"rows parsed")
+        if len(rows)<=500:
+            print("sample of what robot saw:",page[:300].replace("\n"," "))
         if len(rows)>500:
             have={r["id"] for r in rows}
             for i in OURS:
