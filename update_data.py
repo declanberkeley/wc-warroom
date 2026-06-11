@@ -1,24 +1,28 @@
-"""Fetches Jeff's live leaderboard every run, rebuilds data.json. Static config below stays as-is."""
-import json, re, datetime, urllib.request
+"""Fetches Jeff's live leaderboard every run, rebuilds data.json."""
+import json, re, datetime, html as H, urllib.request
 URL="https://www.jeffkeencharitychallenge.co.uk/worldcup2026/tables/Leaderboard.html"
 OURS=["WCP-10964","WCP-10965","WCP-10966"]
 def fetch():
     req=urllib.request.Request(URL,headers={"User-Agent":"Mozilla/5.0 (DecSamDashboard)","Cache-Control":"no-cache"})
     return urllib.request.urlopen(req,timeout=30).read().decode("utf-8","ignore")
-def parse(html):
-    # rows look like: ... WCP-10001 ... <numbers> ... Joker EntryCodes(8x3letters)
-    txt=re.sub(r"<[^>]+>"," ",html)
+def parse(page):
+    txt=H.unescape(re.sub(r"<[^>]+>"," ",page))
+    txt=re.sub(r"\s+"," ",txt)
     rows=[]
-    pat=re.compile(r"(WCP-\d{5})\s+(.+?)\s+(\d+)\s+\d+\s+(\d+)\s+(?:\d+\s+){7}([A-Za-z./ ]+?)\s+((?:[A-Z]{3}\s+){7}[A-Z]{3})")
+    pat=re.compile(r"(WCP-\d{5}) (.+?) (\d+) \d+ (\d+) (?:\d+ ){7}([A-Za-z./ ]+?) ((?:[A-Z]{3} ){7}[A-Z]{3})")
     for m in pat.finditer(txt):
         rows.append(dict(id=m.group(1),name=m.group(2).strip(),pts=int(m.group(3)),
                          alive=int(m.group(4)),joker=m.group(5).strip(),entry=m.group(6).strip()))
     return rows
 def main():
     base=json.load(open("data.json"))
+    prev={e["id"]:e for e in base.get("leaderboard",[])}
     try:
         rows=parse(fetch())
         if len(rows)>500:
+            have={r["id"] for r in rows}
+            for i in OURS:
+                if i not in have and i in prev: rows.append(prev[i])
             base["leaderboard"]=rows
             base["source"]="live from jeffkeencharitychallenge.co.uk"
         else:
