@@ -179,6 +179,10 @@ details .a b{color:var(--ink)}.ok{color:var(--grn);font-weight:800}
  #mnav button{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--dim);font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.12em;padding:9px 0;border-radius:8px;cursor:pointer}
  #mnav button.on{color:#0C1733;background:var(--yel);border-color:var(--yel);font-weight:700}
 }
+.pul{animation:vpulse 2.4s ease-in-out infinite}
+@keyframes vpulse{0%,100%{stroke-opacity:1}50%{stroke-opacity:.3}}
+.vmrow .due{color:var(--cyn);font-size:10px;margin-left:6px;white-space:nowrap}
+.vmrow .wp{color:var(--dim);font-size:8px;letter-spacing:1px;margin-left:6px;opacity:.85}
 </style></head>
 <body data-mtab="tickets">
 <div class="app">
@@ -268,6 +272,32 @@ const RCAP={T1:160,T2:160,T3:170,T1T2:132,T1T3:124,T2T3:124,ALL:166};
 const TSETS={T1:["T1","T1T2","T1T3","ALL"],T2:["T2","T1T2","T2T3","ALL"],T3:["T3","T1T3","T2T3","ALL"]};
 const TIX=["T1","T2","T3"];
 let SELECTED=null;
+const CNEXT={
+ mor_run:{utc:'2026-06-13T20:00:00Z',lab:'Brazil v Morocco · Sat 13 (KO TBC)'},
+ spa_deep:{utc:'2026-06-15T16:00:00Z',lab:'Spain v Cape Verde · Mon 15'},
+ cvd_result:{utc:'2026-06-15T16:00:00Z',lab:'Spain v Cape Verde · Mon 15'},
+ sau_coin:{utc:'2026-06-15T22:00:00Z',lab:'Saudi Arabia v Uruguay · Mon 15'},
+ uru_deep:{utc:'2026-06-15T22:00:00Z',lab:'Saudi Arabia v Uruguay · Mon 15'},
+ fra_champ:{utc:'2026-06-16T19:00:00Z',lab:'France next · Tue 16'},
+ aut_adv:{utc:'2026-06-17T04:00:00Z',lab:'Austria next · Wed 17'},
+ drc_pts:{utc:'2026-06-17T17:00:00Z',lab:'DR Congo v Portugal · Wed 17'},
+ col_run:{utc:'2026-06-18T03:00:00Z',lab:'Uzbekistan v Colombia · Thu 18'},
+ uzb_adv:{utc:'2026-06-18T03:00:00Z',lab:'Uzbekistan v Colombia · Thu 18'},
+ aut_arg:{utc:'2026-06-22T17:00:00Z',lab:'Argentina v Austria · Mon 22'},
+ arg_final:{utc:'2026-06-22T17:00:00Z',lab:'Argentina v Austria · Mon 22'},
+ can_ko:{lab:'knockouts — late June'},
+ eng_final:{lab:'England group games'},
+ pan_result:{lab:'Panama group games'},
+ jap_deep:{lab:'Japan group games'},
+ ivo_adv:{lab:'Ivory Coast group games'}};
+function cdue(id){const n=CNEXT[id];if(!n||!n.utc)return'';const ms=new Date(n.utc)-Date.now();
+ if(ms<0)return'';if(ms<=24*3600e3)return'today';
+ if(ms<=7*86400e3)return['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(n.utc).getDay()];return''}
+function vdetailHTML(c,tix,colr){return `<b>${c.label}</b><span class="st" style="color:${colr}">${c.status}</span> · feeds ${tix} · weight ${c.w}<br>${c.detail||c.note}`+(CNEXT[c.id]?`<br><span style="color:var(--cyn)">⏱ Next checkpoint: ${CNEXT[c.id].lab}</span>`:'')}
+function worldHTML(t){const rel=(DATA.conditions||[]).filter(c=>TSETS[t].includes(c.region));
+ const n={banked:0,on:0,pending:0,dead:0};let W=0,Wb=0,Wl=0;
+ rel.forEach(c=>{n[c.status]=(n[c.status]||0)+1;W+=c.w;if(c.status==='banked')Wb+=c.w;if(c.status!=='dead')Wl+=c.w});
+ return `<b>${t}'s world — ${rel.length} lights.</b>${n.banked} banked · ${n.on} on track · ${n.pending} pending · ${n.dead} dead<br>Weighted: ${Math.round(Wb/Math.max(1,W)*100)}% banked · ${Math.round(Wl/Math.max(1,W)*100)}% still alive. Tap any chip for its story.`}
 function renderVenn(){
  const C=DATA.conditions||[]; const svg=document.getElementById('venn'); if(!svg) return;
  svg.setAttribute('viewBox','0 0 800 672');
@@ -286,14 +316,22 @@ function renderVenn(){
  const col={pending:["#22345F","#9FB0D8","#2A3D72"],on:["#11304F","#5BE0E6","#5BE0E6"],banked:["#FFD52D","#102040","#FFD52D"],dead:["#2A1626","#FF8A95","#FF5A6E"]};
  let k=0;
  for(const[reg,items]of Object.entries(groups)){const[ax,ay]=(VR[reg]||[400,304]);
-  items.forEach((c,i)=>{const y=ay+(i-(items.length-1)/2)*(reg==='T1T2'?23:25);const w=Math.min(RCAP[reg]||160,c.label.length*6.05+14);
+  const cap=RCAP[reg]||160;
+  const FSZ=c=>{const due=cdue(c.id);const chars=(c.status==='banked'||c.status==='dead'?2:0)+c.label.length+(due?due.length+2:0);
+   let fs=Math.min(12.5,9+c.w*0.55);fs=Math.min(fs,(cap-14)/(chars*0.635));return[Math.max(8,fs),chars]};
+  const step=Math.max(reg==='T1T2'?23:25,Math.max(...items.map(c=>FSZ(c)[0]))+16);
+  items.forEach((c,i)=>{const[fs,chars]=FSZ(c);const due=cdue(c.id);
+   const glyph=c.status==='banked'?'✓ ':(c.status==='dead'?'✕ ':'');
+   const y=ay+(i-(items.length-1)/2)*step;
+   const w=Math.min(cap,chars*fs*0.635+14);
+   const hh=Math.max(22,fs+13);
    const[bg,fg,bd]=col[c.status]||col.pending;
    const inFocus=!FOCUS||TSETS[FOCUS].includes(c.region);
    const isSel=SELECTED===c.id;
    s+=`<g class="vchip" data-id="${c.id}" style="opacity:${inFocus?(c.status==='dead'?0.55:1):0.12};transition:opacity .5s">
    <g class="chipin ${c.status==='banked'?'banked':''}" style="animation-delay:${k*45}ms;transform-origin:${ax}px ${y}px">
-   <rect x="${ax-w/2}" y="${y-11}" width="${w}" height="22" rx="6" fill="${bg}" stroke="${isSel?'#fff':bd}" stroke-width="${isSel?2.2:1.2}"/>
-   <text x="${ax}" y="${y+4}" text-anchor="middle" font-size="9.5" font-family="IBM Plex Mono" fill="${fg}" ${c.status==='dead'?'text-decoration="line-through"':''} style="pointer-events:none">${c.label}</text></g></g>`;k++})}
+   <rect class="${c.status==='on'?'pul':''}" x="${ax-w/2}" y="${y-hh/2}" width="${w}" height="${hh}" rx="6" fill="${bg}" stroke="${isSel?'#fff':bd}" stroke-width="${isSel?2.2:1.2}"/>
+   <text x="${ax}" y="${y+fs*0.42}" text-anchor="middle" font-size="${fs}" font-family="IBM Plex Mono" fill="${fg}" ${c.status==='dead'?'text-decoration="line-through"':''} style="pointer-events:none">${glyph}${c.label}${due?`<tspan fill="${c.status==='banked'?'#6B5800':'#7FD8DE'}" font-size="${(fs*0.8).toFixed(1)}"> ·${due}</tspan>`:''}</text></g></g>`;k++})}
  svg.innerHTML=s;
 }
 document.getElementById('venn').addEventListener('click',e=>{
@@ -302,24 +340,26 @@ document.getElementById('venn').addEventListener('click',e=>{
   SELECTED=SELECTED===c.id?null:c.id;
   const tix=TIX.filter(t=>TSETS[t].includes(c.region)).join(' + ');
   const colr={pending:'var(--dim)',on:'var(--cyn)',banked:'var(--yel)',dead:'var(--red)'}[c.status];
-  document.getElementById('vdetail').innerHTML=SELECTED?`<b>${c.label}</b><span class="st" style="color:${colr}">${c.status}</span> · feeds ${tix} · weight ${c.w}<br>${c.detail||c.note}`:'<b>Seventeen lights, waiting.</b>Every chip is one thing that has to happen. Tap any of them.';
+  document.getElementById('vdetail').innerHTML=SELECTED?vdetailHTML(c,tix,colr):'<b>Seventeen lights, waiting.</b>Every chip is one thing that has to happen. Tap any of them.';
   renderVenn();}return}
  const lab=e.target.closest('[data-t]');
  if(lab){FOCUS=FOCUS===lab.dataset.t?null:lab.dataset.t;SELECTED=null;renderVenn();markFocus()}
 });
 function markFocus(){TIX.forEach((t,i)=>{const el=document.getElementById('tc'+i);if(el)el.classList.toggle('focused',FOCUS===t)});
- document.getElementById('vhint').textContent=FOCUS?FOCUS+"'s world — tap again to release":'tap a chip · tap a ticket card to focus its world'}
+ document.getElementById('vhint').textContent=FOCUS?FOCUS+"'s world — tap again to release":'tap a chip · tap a ticket card to focus its world';
+ if(!SELECTED)document.getElementById('vdetail').innerHTML=FOCUS?worldHTML(FOCUS):'<b>Seventeen lights, waiting.</b>Every chip is one thing that has to happen. Tap any of them.';}
 
 function renderVmobile(){const el=document.getElementById('vmobile');if(!el)return;
  const C=DATA.conditions||[];const dotc={pending:'#22345F',on:'#5BE0E6',banked:'#FFD52D',dead:'#FF5A6E'};
- el.innerHTML=C.map(c=>{const tix=TIX.filter(t=>TSETS[t].includes(c.region)).join('+');
-  return `<div class="vmrow ${SELECTED===c.id?'sel':''}" data-cid="${c.id}"><span class="dot" style="background:${dotc[c.status]||dotc.pending};${c.status==='pending'?'border:1px solid var(--line)':''}"></span><span class="lab">${c.label}</span><span class="tk">${tix}</span></div>`}).join('');}
+ const tv=x=>(x.status==='dead'?9e15:0)+(CNEXT[x.id]&&CNEXT[x.id].utc?new Date(CNEXT[x.id].utc).getTime():8e15);
+ el.innerHTML=C.slice().sort((a,b)=>tv(a)-tv(b)||b.w-a.w).map(c=>{const tix=TIX.filter(t=>TSETS[t].includes(c.region)).join('+');const due=cdue(c.id);
+  return `<div class="vmrow ${SELECTED===c.id?'sel':''}" data-cid="${c.id}"><span class="dot" style="background:${dotc[c.status]||dotc.pending};${c.status==='pending'?'border:1px solid var(--line)':''}"></span><span class="lab">${c.label}</span>${due?`<span class="due">·${due}</span>`:''}<span class="wp">${'▮'.repeat(Math.min(5,c.w))}</span><span class="tk">${tix}</span></div>`}).join('');}
 document.getElementById('vmobile').addEventListener('click',e=>{const r=e.target.closest('[data-cid]');if(!r)return;
  const c=(DATA.conditions||[]).find(x=>x.id===r.dataset.cid);if(!c)return;
  SELECTED=SELECTED===c.id?null:c.id;
  const tix=TIX.filter(t=>TSETS[t].includes(c.region)).join(' + ');
  const colr={pending:'var(--dim)',on:'var(--cyn)',banked:'var(--yel)',dead:'var(--red)'}[c.status];
- document.getElementById('vdetail').innerHTML=SELECTED?`<b>${c.label}</b><span class="st" style="color:${colr}">${c.status}</span> · feeds ${tix} · weight ${c.w}<br>${c.detail||c.note}`:'<b>Seventeen lights, waiting.</b>Every chip is one thing that has to happen. Tap any of them.';
+ document.getElementById('vdetail').innerHTML=SELECTED?vdetailHTML(c,tix,colr):'<b>Seventeen lights, waiting.</b>Every chip is one thing that has to happen. Tap any of them.';
  renderVenn();renderVmobile();});
 const J2C={France:'FRA',Spain:'SPA',England:'ENG',Argentina:'ARG'};
 function spark(id){const H=DATA.history||[];const pts=H.map(x=>x.r&&x.r[id]?x.r[id][0]:null).filter(v=>v!=null);
