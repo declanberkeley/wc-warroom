@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dec &amp; Sam · WC26 War Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;800&family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0C1733;--bg2:#101C3D;--panel:#15244B;--panel2:#1B2D5C;--ink:#F4F7FF;--dim:#9FB0D8;--yel:#FFD52D;--cyn:#5BE0E6;--grn:#2FB46B;--red:#FF5A6E;--line:#27395F;--gold-soft:rgba(255,213,45,.12)}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{background:radial-gradient(1200px 700px at 70% -10%, #16275a 0%, var(--bg) 55%);color:var(--ink);font-family:Inter,system-ui,sans-serif;overflow:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 70px,rgba(91,224,230,.025) 70px 71px),repeating-linear-gradient(90deg,transparent 0 70px,rgba(91,224,230,.025) 70px 71px)}
+.app{display:grid;height:100vh;grid-template-rows:auto auto 1fr auto;gap:8px;padding:10px 12px;max-width:1720px;margin:0 auto}
+/* header */
+header{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{font-family:Unbounded;font-weight:800;font-size:clamp(16px,1.6vw,24px);letter-spacing:.5px;white-space:nowrap}
+.brand span{color:var(--yel)}
+.hbtn{margin-left:auto;display:flex;gap:8px;align-items:center}
+button.ghost{background:var(--panel);border:1px solid var(--line);color:var(--cyn);font-family:'IBM Plex Mono';font-size:11px;letter-spacing:1px;padding:7px 11px;border-radius:8px;cursor:pointer}
+button.ghost:hover{border-color:var(--cyn)}
+.live{font-family:'IBM Plex Mono';font-size:11px;color:var(--dim);white-space:nowrap}
+.live b{color:var(--grn)}
+/* ticker */
+.ticker{background:#091226;border:1px solid var(--line);border-radius:8px;overflow:hidden;white-space:nowrap}
+.ticker .in{display:inline-block;padding:6px 0;font-family:'IBM Plex Mono';font-size:12px;color:var(--yel);animation:scroll 45s linear infinite;will-change:transform}
+.ticker span{padding-right:60px}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+/* grid */
+.main{display:grid;grid-template-columns:285px minmax(0,1fr) 365px;gap:8px;min-height:0}
+.col{display:grid;gap:8px;min-height:0}
+.colL{grid-template-rows:1fr 1fr 1fr}
+.colC{grid-template-rows:minmax(0,1fr) 186px}
+.colR{grid-template-rows:minmax(0,1fr) minmax(0,1.2fr)}
+.panel{background:linear-gradient(180deg,var(--panel) 0%,#121f44 100%);border:1px solid var(--line);border-radius:12px;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.phead{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--line)}
+.phead h2{font-family:Unbounded;font-weight:500;font-size:10.5px;letter-spacing:2.2px;color:var(--cyn);text-transform:uppercase}
+.phead .sub{font-family:'IBM Plex Mono';font-size:10px;color:var(--dim)}
+.pbody{padding:10px 12px;overflow:auto;min-height:0;flex:1;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.pbody::-webkit-scrollbar{width:6px;height:6px}.pbody::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+/* ticket cards */
+.tcard{display:flex;flex-direction:column;justify-content:center;gap:4px;height:100%;padding:10px 14px;cursor:pointer;transition:background .25s}
+.tcard:hover{background:var(--gold-soft)}
+.tcard.focused{outline:2px solid var(--yel);outline-offset:-2px;border-radius:12px}
+.tcard .lbl{font-size:10px;letter-spacing:1.6px;color:var(--dim);text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.jk{background:var(--yel);color:#102;border-radius:4px;font-size:9px;font-weight:800;padding:2px 6px;letter-spacing:1px}
+.tcard .rank{font-family:'IBM Plex Mono';font-weight:700;font-size:clamp(30px,3vw,44px);line-height:1;color:var(--yel);font-variant-numeric:tabular-nums}
+.tcard .rank small{font-size:14px;color:var(--dim);font-weight:400}
+.tcard .meta{font-family:'IBM Plex Mono';font-size:11px;color:var(--dim)}
+.tcard .meta b{color:var(--ink)}
+/* venn */
+.vennbox{position:relative;flex:1;min-height:0;display:flex}
+#venn{width:100%;height:100%;display:block}
+.vdetail{position:absolute;left:10px;top:8px;max-width:300px;background:rgba(9,18,38,.92);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;color:var(--dim);backdrop-filter:blur(4px)}
+.vdetail b{color:var(--ink);display:block;font-size:12.5px}
+.vdetail .st{font-family:'IBM Plex Mono';font-size:10px;letter-spacing:1px;text-transform:uppercase}
+.vleg{position:absolute;right:10px;top:8px;display:flex;flex-direction:column;gap:4px;font-family:'IBM Plex Mono';font-size:10px;color:var(--dim)}
+.vleg i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.vchip{cursor:pointer}
+.vchip:hover rect{stroke-width:2.4}
+.vlab{font-family:'IBM Plex Mono';font-size:12px;fill:var(--dim);cursor:pointer}
+.vlab:hover{fill:var(--yel)}
+.chipin{opacity:0;animation:chipIn .45s ease forwards}
+@keyframes chipIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.vchip:hover .chipin{filter:brightness(1.25)}
+.vcirc{transition:fill-opacity .8s,stroke-width .3s;cursor:pointer}
+.vcirc:hover{stroke-width:3.5}
+@keyframes pulseV{0%{transform:scale(1)}50%{transform:scale(1.07)}100%{transform:scale(1)}}
+.banked{animation:pulseV 1.6s ease 2}
+/* fixtures rail */
+.rail{display:flex;gap:8px;overflow-x:auto;padding:10px 12px;scroll-snap-type:x mandatory;scrollbar-width:thin}
+.fx{scroll-snap-align:start;min-width:228px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 11px;display:flex;flex-direction:column;gap:5px;transition:transform .2s,border-color .2s}
+.fx:hover{transform:translateY(-3px);border-color:var(--cyn)}
+.fx .top{display:flex;justify-content:space-between;align-items:center;font-family:'IBM Plex Mono';font-size:10.5px;color:var(--cyn)}
+.fx .cd{color:var(--yel);font-weight:700}
+.fx .m{font-weight:800;font-size:13.5px}
+.fx .why{font-size:11px;color:var(--dim);line-height:1.45;flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.fx .chips{display:flex;gap:4px}
+.chip{font-family:'IBM Plex Mono';font-size:9.5px;border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:var(--yel)}
+.swing{height:4px;border-radius:2px;background:#0A1430;overflow:hidden}
+.swing i{display:block;height:100%;background:linear-gradient(90deg,var(--cyn),var(--yel))}
+/* race */
+.tabs{display:flex;gap:6px}
+.tabs button{background:none;border:1px solid var(--line);color:var(--dim);font-family:'IBM Plex Mono';font-size:9.5px;letter-spacing:1px;padding:4px 8px;border-radius:6px;cursor:pointer}
+.tabs button.on{color:#102;background:var(--yel);border-color:var(--yel);font-weight:700}
+.rrow{display:grid;grid-template-columns:34px 1fr 64px 58px;gap:6px;align-items:center;padding:5px 4px;border-bottom:1px solid #1B2A52;font-size:12px}
+.rrow .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rrow .nm small{display:block;color:var(--dim);font-size:10px;font-family:'IBM Plex Mono'}
+.rrow .rk{font-family:'IBM Plex Mono';color:var(--cyn);font-weight:700}
+.rrow .pt{font-family:'IBM Plex Mono';color:var(--yel);text-align:right;font-weight:600}
+.rrow .gp{font-family:'IBM Plex Mono';font-size:11px;text-align:right;color:var(--dim)}
+.rrow.us{background:var(--gold-soft);border-left:3px solid var(--yel);border-radius:4px}
+.bar{grid-column:1/-1;height:3px;background:#0A1430;border-radius:2px;overflow:hidden;margin:-2px 0 3px}
+.bar i{display:block;height:100%;background:var(--cyn);opacity:.7}
+.rrow.us+.bar i{background:var(--yel);opacity:1}
+/* leaderboard */
+.pin{background:var(--gold-soft);border:1px solid rgba(255,213,45,.4);border-radius:8px;padding:6px 8px;margin-bottom:8px}
+.pin .tag{font-family:'IBM Plex Mono';font-size:9px;letter-spacing:2px;color:var(--yel);margin-bottom:3px}
+.lrow{display:grid;grid-template-columns:40px 1fr 70px 56px;gap:6px;padding:4.5px 4px;border-bottom:1px solid #1B2A52;font-size:12px;align-items:center}
+.lrow .rk{font-family:'IBM Plex Mono';color:var(--cyn)}
+.lrow .pt{font-family:'IBM Plex Mono';color:var(--yel);text-align:right}
+.lrow .al{font-family:'IBM Plex Mono';font-size:10.5px;color:var(--dim);text-align:right}
+.lrow.us{color:var(--yel);font-weight:700}
+.lrow.rival{color:var(--cyn)}
+.search{width:100%;background:#0A1430;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 10px;font-family:'IBM Plex Mono';font-size:12px;margin-bottom:8px}
+/* coverage strip */
+.cstrip{display:flex;gap:6px;align-items:center;overflow-x:auto;padding:7px 10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;scrollbar-width:none}
+.cstrip .lbl{font-family:Unbounded;font-size:9px;letter-spacing:2px;color:var(--cyn);white-space:nowrap;margin-right:4px}
+.cc{white-space:nowrap;font-family:'IBM Plex Mono';font-size:10.5px;border-radius:6px;padding:4px 8px;border:1px solid var(--line)}
+.cc.alive{border-left:3px solid var(--grn)}.cc.mid{border-left:3px solid var(--yel)}.cc.dead{border-left:3px solid var(--red);opacity:.6}
+.cc small{color:var(--dim)}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(5,10,25,.8);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal.open{display:flex}
+.mcard{background:var(--bg2);border:1px solid var(--line);border-radius:14px;max-width:720px;width:100%;max-height:84vh;overflow:auto;padding:20px 22px}
+.mcard h3{font-family:Unbounded;font-size:14px;color:var(--yel);letter-spacing:1.5px;margin-bottom:12px}
+details{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:8px;overflow:hidden}
+summary{cursor:pointer;padding:11px 13px;font-weight:800;font-size:13.5px;list-style:none;display:flex;justify-content:space-between}
+summary::after{content:"+";font-family:'IBM Plex Mono';color:var(--yel)}
+details[open] summary::after{content:"–"}
+details .a{padding:0 13px 12px;font-size:13px;line-height:1.6;color:var(--dim)}
+details .a b{color:var(--ink)}.ok{color:var(--grn);font-weight:800}
+.foot{font-size:10.5px;color:var(--dim);margin-top:10px;line-height:1.5}
+:focus-visible{outline:2px solid var(--cyn);outline-offset:2px}
+.pickrow{display:flex;flex-wrap:wrap;gap:3px;margin:3px 0 1px}
+.pk{font-family:'IBM Plex Mono';font-size:9px;border:1px solid var(--line);border-radius:3px;padding:1px 4px;color:var(--dim)}
+.pk.j{background:var(--yel);color:#102;border-color:var(--yel);font-weight:700}
+.spark{vertical-align:middle}
+.mv{font-family:'IBM Plex Mono';font-size:10px}
+.mv.up{color:var(--grn)}.mv.dn{color:var(--red)}
+::selection{background:var(--yel);color:#102}
+.lrow,.rrow{cursor:pointer;transition:background .15s}
+.lrow:hover,.rrow:hover{background:var(--panel2)}
+.rrow.us{box-shadow:inset 0 0 14px rgba(255,213,45,.08)}
+.jk{box-shadow:0 0 10px rgba(255,213,45,.35)}
+.pin{box-shadow:inset 0 0 24px rgba(255,213,45,.06)}
+.vcirc{filter:drop-shadow(0 0 5px rgba(91,224,230,.15))}
+.pk.sh{border-color:var(--yel);color:var(--yel)}
+.mline{font-size:12.5px;color:var(--dim);padding:3px 0;line-height:1.5}
+.mline b{color:var(--ink)}
+.mnote{background:var(--gold-soft);border:1px solid rgba(255,213,45,.4);border-radius:8px;padding:8px 10px;font-size:12.5px;margin:8px 0;color:var(--ink);line-height:1.5}
+.msec{font-family:Unbounded;font-size:9px;letter-spacing:2px;color:var(--cyn);margin:12px 0 5px;text-transform:uppercase}
+#ebody .pk{font-size:10px;padding:2px 6px;margin:2px;display:inline-block}
+@media (prefers-reduced-motion:reduce){.ticker .in{animation:none;padding-left:12px}.banked{animation:none}.fx:hover{transform:none}.chipin{animation:none;opacity:1}}
+@media (max-width:1100px){body{overflow:auto}.app{height:auto}.main{grid-template-columns:1fr}.colC{grid-template-rows:480px 168px}.colL{grid-template-rows:repeat(3,110px)}}
+</style></head>
+<body>
+<div class="app">
+<header>
+ <div class="brand">DEC &amp; SAM <span>· WC26 WAR ROOM</span></div>
+ <div class="hbtn">
+  <a class="ghost" style="text-decoration:none;display:inline-block" href="https://www.jeffkeencharitychallenge.co.uk/worldcup2026/" target="_blank" rel="noopener">JEFF&#8217;S SITE &#8599;</a>
+  <button class="ghost" id="howbtn">HOW IT WORKS</button>
+  <div class="live"><b>●</b> <span id="upd">connecting…</span></div>
+ </div>
+</header>
+<div class="ticker"><div class="in"><span id="ticker">LOADING THE VIDIPRINTER…</span><span id="ticker2"></span></div></div>
+
+<div class="main">
+ <!-- LEFT: tickets -->
+ <div class="col colL">
+  <div class="panel"><div class="tcard" id="tc0"></div></div>
+  <div class="panel"><div class="tcard" id="tc1"></div></div>
+  <div class="panel"><div class="tcard" id="tc2"></div></div>
+ </div>
+ <!-- CENTER: venn + fixtures -->
+ <div class="col colC">
+  <div class="panel">
+   <div class="phead"><h2>The Absorption Venn</h2><div class="sub" id="vhint">tap a chip · tap a ticket card to focus its world</div></div>
+   <div class="vennbox">
+    <svg id="venn" viewBox="0 0 760 620" role="img" aria-label="Interactive Venn of the three tickets' winning conditions"></svg>
+    <div class="vleg"><span><i style="background:#22345F"></i>pending</span><span><i style="background:#5BE0E6"></i>on track</span><span><i style="background:#FFD52D"></i>banked</span><span><i style="background:#FF5A6E"></i>dead</span></div>
+    <div class="vdetail" id="vdetail"><b>Seventeen lights, waiting.</b>Every chip is one thing that has to happen. Tap any of them.</div>
+   </div>
+  </div>
+  <div class="panel">
+   <div class="phead"><h2 id="fixtitle">Today&#8217;s Orders</h2><div class="tabs" id="ftabs"></div></div>
+   <div class="rail" id="fixtures"></div>
+  </div>
+ </div>
+ <!-- RIGHT: race + leaderboard -->
+ <div class="col colR">
+  <div class="panel">
+   <div class="phead"><h2>The Race</h2><div class="tabs" id="rtabs"></div></div>
+   <div class="pbody" id="race"></div>
+  </div>
+  <div class="panel">
+   <div class="phead"><h2>Global Leaderboard</h2><div class="sub" id="lbcount"></div></div>
+   <div class="pbody">
+    <div class="pin"><div class="tag">PINNED · OUR TICKETS</div><div id="pinned"></div></div>
+    <input class="search" id="q" placeholder="search 1,080 entries…">
+    <div id="lb"></div>
+   </div>
+  </div>
+ </div>
+</div>
+
+<div class="cstrip" id="cov"></div>
+</div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true">
+ <div class="mcard">
+  <h3>HOW THIS ACTUALLY WORKS</h3>
+  <details open><summary>Can we win the whole £1,700 jackpot?</summary><div class="a"><span class="ok">YES — completely.</span> Prizes are fixed per place: 1st takes the full £1,700, 2nd £1,200, 3rd £900, 4th £600, 5th £387. <b>Nothing is ever split between entries.</b> If two entries finish level on points, the tiebreaker (our predicted minute of the first goal in the final — 24, 35 and 12) decides who takes the higher prize outright. Entry date is irrelevant.</div></details>
+  <details><summary>Then what's the problem with people having the same picks as us?</summary><div class="a">It's about <b>position on the points table, not money</b>. In our perfect tournament, nine entries with near-identical teams score almost exactly what we score, at the same moment. Five paid places. Whether we sit above or below them comes down to the one or two picks that differ — our Saudi Arabia against Ben Corry's Panama. Our points never shrink; our <b>rank</b> is what's contested.</div></details>
+  <details><summary>How do our teams score points?</summary><div class="a"><b>Win</b> = opponent's rating ×2 in groups, ×4 in knockouts (beat Spain in a knockout = 400). <b>Draw</b> (groups only) = rating ×1 — Austria drawing Argentina = 80. Every <b>goal</b> = 3 (6 in knockouts), <b>clean sheet</b> = 5 (10), cards cost 1–3. The <b>joker's</b> points all count double.</div></details>
+  <details><summary>Why does it matter how many people picked our joker?</summary><div class="a">The joker is roughly half a ticket's score. If France win, all <b>229</b> France-joker entries rocket together — nobody gains. If Spain win, only <b>178</b> surge, and our T2 is among them with a one-of-a-kind supporting cast. Pools are won by being <b>right AND rare</b>.</div></details>
+  <details><summary>Why is T2 our "best" ticket when T1 scores more?</summary><div class="a">T1 is the 2nd-highest-scoring design in the pool — but it has a twin and eight near-twins, so its glory is shared. T2 is <b>the only entry of its kind among all 1,080</b>. Quality earns points; scarcity earns prizes.</div></details>
+  <details><summary>What does "gap to the money" mean?</summary><div class="a">The points between our best ticket and whoever currently sits 5th — the last paid place (£387). That's the line we hunt all tournament.</div></details>
+  <details><summary>What are the percentages?</summary><div class="a">Estimates from <b>10,000 simulated tournaments</b> scored with the real rules and raced against the real 1,080 entries. Weather forecasts, not promises.</div></details>
+  <div class="foot">Model calibrated to bookmaker odds, 10 Jun 2026. Estimates, not prophecy.</div>
+  <button class="ghost" id="closem" style="margin-top:10px">CLOSE</button>
+ </div>
+</div>
+
+<div class="modal" id="emodal" role="dialog" aria-modal="true">
+ <div class="mcard" id="ebody"></div>
+</div>
+
+<script>
+const SEED = {"generated_at": "2026-06-11T14:30:00Z", "source": "seed snapshot (pre-tournament)", "ours": ["WCP-10964", "WCP-10965", "WCP-10966"], "ticket_meta": {"WCP-10964": {"label": "D&S WCP (1)", "joker": "France", "model": {"ev": 2196, "ev_rank": 2, "p_top5": 0.7, "median": 264, "exp_gbp": 5.14}}, "WCP-10965": {"label": "D&S WCP (2)", "joker": "Spain", "model": {"ev": 2081, "ev_rank": 24, "p_top5": 1.4, "median": 312, "exp_gbp": 14.67}}, "WCP-10966": {"label": "D&S WCP (3)", "joker": "France", "model": {"ev": 1906, "ev_rank": 153, "p_top5": 0.6, "median": 401, "exp_gbp": 5.15}}}, "rivals": {"clones": ["Ben Corry 2", "Robert White 3", "Atkins Athletic", "Captain's Fourball No 1"], "contenders": ["MAC 2", "Rice Rice Baby 2", "Monique Rocastle WC2", "Cash is King 3", "Ryley Finlay"], "banter": ["Claude's made me Makalazy", "Claude's made me Makalazy 2", "Claude's made me Makalazy 3", "3 lions and a spreadsheet"]}, "coverage": [["France", "16%", "our best world", "alive"], ["Spain", "21%", "strong \u2014 T1+T2", "alive"], ["England", "14%", "T2 carries us", "mid"], ["Argentina", "11%", "T3 only", "mid"], ["Colombia", "4%", "we own her twice", "alive"], ["Morocco", "1%", "longshot", "alive"], ["Portugal", "11%", "we are dead here", "dead"], ["Brazil", "7%", "dead", "dead"], ["Netherlands", "4%", "dead", "dead"]], "fixtures": [{"utc": "2026-06-13T20:00:00Z", "tbc": true, "match": "Brazil v Morocco", "why": "Morocco draw = +85 on T1+T2 \u00b7 win = +170", "tickets": "T1 T2", "want": "WANT: Morocco point or better \u2014 draw +85, win +170 (T1 T2). Every Morocco goal +3."}, {"utc": "2026-06-15T16:00:00Z", "match": "Spain v Cape Verde", "why": "Spain joker opens (T2) \u00b7 Cape Verde carry T3", "tickets": "T2 T3", "want": "WANT: Spain win + clean sheet (doubled on T2's joker). A Cape Verde goal +3 for T3."}, {"utc": "2026-06-15T22:00:00Z", "match": "Saudi Arabia v Uruguay", "why": "T1 hopeful v T3 dark horse \u2014 win-win", "tickets": "T1 T3", "want": "WANT: anything \u2014 Saudi result feeds T1, Uruguay win & goals feed T3. We can't lose this one."}, {"utc": "2026-06-16T19:00:00Z", "match": "France v Senegal", "why": "The double joker kicks off", "tickets": "T1 T3", "want": "WANT: France win, goals, clean sheet \u2014 all DOUBLED on the T1+T3 jokers."}, {"utc": "2026-06-17T04:00:00Z", "match": "Austria v Jordan", "why": "Austria ride on ALL THREE tickets", "tickets": "T1 T2 T3", "want": "WANT: Austria win with goals \u2014 keeps all three recipes breathing."}, {"utc": "2026-06-17T17:00:00Z", "match": "Portugal v DR Congo", "why": "DRC (T1+T2) \u2014 keep it tight, nick a goal", "tickets": "T1 T2", "want": "WANT: DRC keep it tight and nick a goal (+3). A draw = +70 jackpot (T1 T2)."}, {"utc": "2026-06-18T03:00:00Z", "match": "Uzbekistan v Colombia", "why": "T3 hopeful v T1/T2 dark horse", "tickets": "T1 T2 T3", "want": "WANT: Colombia win & goals (T1 T2); any Uzbek goal +3 for T3."}, {"utc": "2026-06-22T17:00:00Z", "match": "Argentina v Austria", "why": "THE 80-POINT LOTTERY \u2014 Austria draw pays everywhere", "tickets": "T1 T2 T3", "want": "WANT: AUSTRIA DRAW = +80 ON ALL THREE TICKETS. A win = +160. Circle this one."}, {"utc": "2026-06-26T19:00:00Z", "match": "Norway v France", "why": "France's 80-point banker \u2014 biggest group fixture you own", "tickets": "T1 T3", "want": "WANT: France win = +80, doubled to +160 on T1+T3. Banker day."}, {"utc": "2026-06-27T00:00:00Z", "match": "Uruguay v Spain", "why": "Spain joker's test", "tickets": "T2 T3", "want": "WANT: split loyalties \u2014 Spain win feeds T2's joker; a draw pays Uruguay +100 on T3."}, {"utc": "2026-06-27T00:00:00Z", "match": "Cape Verde v Saudi Arabia", "why": "Group H hopeful decider \u2014 you hold both sides", "tickets": "T1 T3", "want": "WANT: goals \u2014 we hold BOTH sides, so the win lands in our book either way (T1/T3)."}, {"utc": "2026-06-27T17:00:00Z", "tbc": true, "match": "DR Congo v Uzbekistan", "why": "Group K hopeful decider \u2014 both sides again", "tickets": "T1 T2 T3", "want": "WANT: goals again, both sides ours \u2014 the winner likely reaches the last 32 (T1 T2 v T3)."}], "leaderboard": [{"id": "WCP-10748", "name": "3 lions and a spreadsheet", "pts": 0, "alive": 8, "joker": "England", "entry": "ENG POR MOR SEN AUT GHA NEW DRC"}, {"id": "WCP-10008", "name": "Atkins Athletic", "pts": 0, "alive": 8, "joker": "Spain", "entry": "SPA FRA MOR COL CAN AUT DRC SAU"}, {"id": "WCP-10702", "name": "Ben Corry 2", "pts": 0, "alive": 8, "joker": "France", "entry": "FRA SPA COL MOR AUT CAN DRC PAN"}, {"id": "WCP-10618", "name": "Captain's Fourball No 1", "pts": 0, "alive": 8, "joker": "Spain", "entry": "SPA FRA COL MOR AUT CAN DRC SAF"}, {"id": "WCP-10381", "name": "Cash is King 3", "pts": 0, "alive": 8, "joker": "Netherlands", "entry": "POR NET URU COL EGY PAR DRC IRQ"}, {"id": "WCP-10068", "name": "Claude's made me Makalazy", "pts": 0, "alive": 8, "joker": "Norway", "entry": "NOR POR COL SEN IVO AUT DRC SAU"}, {"id": "WCP-10069", "name": "Claude's made me Makalazy 2", "pts": 0, "alive": 8, "joker": "France", "entry": "FRA NOR MOR CRO SCO AUT SAU SAF"}, {"id": "WCP-10070", "name": "Claude's made me Makalazy 3", "pts": 0, "alive": 8, "joker": "France", "entry": "FRA NET JAP URU AUT KOR SAU JOR"}, {"id": "WCP-10964", "name": "Dec & Sams WC Pick (1)", "pts": 0, "alive": 8, "joker": "France", "entry": "FRA SPA MOR COL AUT CAN DRC SAU"}, {"id": "WCP-10965", "name": "Dec & Sams WC Pick (2)", "pts": 0, "alive": 8, "joker": "Spain", "entry": "SPA ENG MOR COL AUT CAN PAN DRC"}, {"id": "WCP-10966", "name": "Dec & Sams WC Pick (3)", "pts": 0, "alive": 8, "joker": "France", "entry": "FRA ARG JAP URU AUT IVO UZB CVD"}, {"id": "WCP-10721", "name": "MAC 2", "pts": 0, "alive": 8, "joker": "Portugal", "entry": "FRA POR COL ECU AUT CAN PAN UZB"}, {"id": "WCP-11051", "name": "Monique Rocastle WC2", "pts": 0, "alive": 8, "joker": "Spain", "entry": "SPA BRA COL MOR ALG CAN CVD DRC"}, {"id": "WCP-10761", "name": "Rice Rice Baby 2", "pts": 0, "alive": 8, "joker": "France", "entry": "FRA ARG COL MOR AUT CAN SAU NEW"}, {"id": "WCP-10930", "name": "Robert White 3", "pts": 0, "alive": 8, "joker": "France", "entry": "SPA FRA COL MOR AUT CAN DRC SAF"}, {"id": "WCP-10382", "name": "Ryley Finlay", "pts": 0, "alive": 8, "joker": "England", "entry": "ENG ARG SEN MOR AUT CAN SAU IRQ"}, {"id": "WCP-10607", "name": "2EZ", "pts": 0, "alive": 8, "joker": "France", "entry": "FRA ENG TUR MOR KOR IVO DRC UZB"}, {"id": "WCP-10656", "name": "6 of the Kane for Tuchel", "pts": 0, "alive": 8, "joker": "Brazil", "entry": "BRA FRA COL SWI AUT PAR SAU SAF"}, {"id": "WCP-10108", "name": "60 years of Hurt", "pts": 0, "alive": 8, "joker": "Japan", "entry": "POR GER JAP URU AUT AUS NEW SAF"}, {"id": "WCP-10109", "name": "60 years of Hurt 2", "pts": 0, "alive": 8, "joker": "Mexico", "entry": "BRA ARG SEN MEX IVO EGY SAU QAT"}, {"id": "WCP-10110", "name": "60 years of Hurt 3", "pts": 0, "alive": 8, "joker": "Ecuador", "entry": "SPA FRA ECU COL CZR BOS UZB IRQ"}, {"id": "WCP-10876", "name": "A Hopeful Rizk", "pts": 0, "alive": 8, "joker": "Colombia", "entry": "BRA POR COL SEN KOR CAN SAU UZB"}, {"id": "WCP-10747", "name": "AAA Aardvaark2", "pts": 0, "alive": 8, "joker": "Argentina", "entry": "ENG ARG TUR SWE GHA EGY QAT DRC"}, {"id": "WCP-10746", "name": "AAA Aardvarks", "pts": 0, "alive": 8, "joker": "France", "entry": "FRA POR USA TUR SCO KOR SAU NEW"}, {"id": "WCP-10917", "name": "Abecedarians i", "pts": 0, "alive": 8, "joker": "Ecuador", "entry": "FRA POR CRO ECU TUN BOS QAT SAF"}, {"id": "WCP-10695", "name": "Abi", "pts": 0, "alive": 8, "joker": "Norway", "entry": "SPA NOR SEN TUR SCO CAN DRC SAU"}, {"id": "WCP-11074", "name": "ADAM C", "pts": 0, "alive": 8, "joker": "Spain", "entry": "SPA POR JAP URU AUT CAN SAU SAF"}, {"id": "WCP-11075", "name": "ADAM C 2", "pts": 0, "alive": 8, "joker": "France", "entry": "FRA BRA SEN MOR IVO PAR QAT DRC"}, {"id": "WCP-11076", "name": "ADAM C 3", "pts": 0, "alive": 8, "joker": "England", "entry": "ENG ARG USA MEX CZR AUS NEW UZB"}, {"id": "WCP-10386", "name": "Adam Russell", "pts": 0, "alive": 8, "joker": "Morocco", "entry": "ENG FRA MOR CRO IVO GHA QAT NEW"}, {"id": "WCP-10998", "name": "Adams Family", "pts": 0, "alive": 8, "joker": "England", "entry": "ENG BRA SWE SWI BOS SCO SAF CVD"}, {"id": "WCP-10999", "name": "Adams_Claude FC", "pts": 0, "alive": 8, "joker": "England", "entry": "ENG SPA SWI USA CAN PAR DRC SAF"}, {"id": "WCP-10425", "name": "Adrian J 1", "pts": 0, "alive": 8, "joker": "Germany", "entry": "GER BEL SEN CRO BOS GHA SAF UZB"}, {"id": "WCP-10426", "name": "Adrian J 2", "pts": 0, "alive": 8, "joker": "Switzerland", "entry": "ARG BRA SWI JAP CZR CAN SAF UZB"}, {"id": "WCP-10427", "name": "Adrian J also", "pts": 0, "alive": 8, "joker": "Colombia", "entry": "FRA NOR MEX COL GHA EGY SAF PAN"}, {"id": "WCP-10374", "name": "Ahmed Entry 2", "pts": 0, "alive": 8, "joker": "Spain", "entry": "SPA FRA MOR COL AUT IVO SAU NEW"}, {"id": "WCP-10375", "name": "Ahmed Entry 3", "pts": 0, "alive": 8, "joker": "Netherlands", "entry": "NET BRA MOR CRO IVO SCO SAU PAN"}, {"id": "WCP-11061", "name": "Alex Bexon", "pts": 0, "alive": 8, "joker": "England", "entry": "FRA ENG JAP MOR IVO GHA IRQ SAU"}, {"id": "WCP-10715", "name": "Alex Chittenden", "pts": 0, "alive": 8, "joker": "France", "entry": "SPA FRA COL JAP CAN AUT DRC NEW"}, {"id": "WCP-10716", "name": "Alex Chittenden 2", "pts": 0, "alive": 8, "joker": "Argentina", "entry": "BRA ARG TUR MEX IVO PAR SAU QAT"}, {"id": "WCP-10133", "name": "Alex Cross 1", "pts": 0, "alive": 8, "joker": "Spain", "entry": "ENG SPA URU SWE AUT IVO SAF HAI"}, {"id": "WCP-10134", "name": "Alex Cross 2", "pts": 0, "alive": 8, "joker": "France", "entry": "FRA BRA JAP USA PAR CZR SAF IRQ"}, {"id": "WCP-10135", "name": "Alex Cross 3", "pts": 0, "alive": 8, "joker": "Germany", "entry": "GER ARG MOR URU EGY KOR CVD PAN"}, {"id": "WCP-10219", "name": "Alex Hance1", "pts": 0, "alive": 8, "joker": "England", "entry": "ENG BRA SWI JAP PAR IVO NEW PAN"}, {"id": "WCP-10220", "name": "Alex Hance2", "pts": 0, "alive": 8, "joker": "France", "entry": "SPA FRA MEX ECU EGY AUT SAU UZB"}, {"id": "WCP-10221", "name": "Alex Hance3", "pts": 0, "alive": 8, "joker": "France", "entry": "FRA ENG SWI COL AUT SCO SAU SAF"}, {"id": "WCP-11067", "name": "Alex Lodge", "pts": 0, "alive": 8, "joker": "England", "entry": "ENG ARG JAP USA ALG CAN NEW SAF"}, {"id": "WCP-10784", "name": "Alex Songaila 1", "pts": 0, "alive": 8, "joker": "Spain", "entry": "SPA ENG MOR CRO PAR EGY SAU SAF"}, {"id": "WCP-10785", "name": "Alex Songaila 2", "pts": 0, "alive": 8, "joker": "France", "entry": "FRA BRA JAP USA AUT PAR DRC NEW"}, {"id": "WCP-10786", "name": "Alex Songaila 3", "pts": 0, "alive": 8, "joker": "Argentina", "entry": "ARG POR MEX SWI GHA SCO DRC QAT"}, {"id": "WCP-10731", "name": "Ali Bongo 1", "pts": 0, "alive": 8, "joker": "England", "entry": "ENG SPA JAP COL AUS ALG UZB SAF"}, {"id": "WCP-10732", "name": "Ali Bongo 2", "pts": 0, "alive": 8, "joker": "Switzerland", "entry": "POR BRA SWI CRO SCO AUT DRC SAU"}, {"id": "WCP-10733", "name": "Ali Bongo 3", "pts": 0, "alive": 8, "joker": "Argentina", "entry": "ARG BRA JAP URU SCO CZR SAF QAT"}, {"id": "WCP-10690", "name": "Ali eagar", "pts": 0, "alive": 8, "joker": "Portugal", "entry": "FRA POR JAP CRO GHA SCO SAF NEW"}, {"id": "WCP-10740", "name": "Alice L", "pts": 0, "alive": 8, "joker": "England", "entry": "SPA ENG COL MEX TUN CAN HAI PAN"}, {"id": "WCP-10800", "name": "Alice Whiley", "pts": 0, "alive": 8, "joker": "Spain", "entry": "SPA NET JAP MOR AUT ALG SAF SAU"}, {"id": "WCP-10465", "name": "Allison Wonderland", "pts": 0, "alive": 8, "joker": "Brazil", "entry": "BRA ARG COL MEX PAR CAN PAN NEW"}, {"id": "WCP-10411", "name": "Almost Swindon Town", "pts": 0, "alive": 8, "joker": "Senegal", "entry": "GER NOR SEN JAP CZR BOS DRC SAU"}, {"id": "WCP-10190", "name": "Amanda Humphreys", "pts": 0, "alive": 8, "joker": "Spain", "entry": "SPA GER SWI MOR IVO ALG QAT SAU"}, {"id": "WCP-10668", "name": "AndyB1", "pts": 0, "alive": 8, "joker": "Germany", "entry": "ENG GER SEN JAP GHA KOR NEW SAU"}, {"id": "WCP-10669", "name": "AndyB2", "pts": 0, "alive": 8, "joker": "France", "entry": "FRA POR COL MOR EGY AUS DRC SAF"}, {"id": "WCP-10670", "name": "AndyB3", "pts": 0, "alive": 8, "joker": "Mexico", "entry": "SPA ARG URU MEX AUT CAN QAT PAN"}, {"id": "WCP-10222", "name": "Andy's Bandits", "pts": 0, "alive": 8, "joker": "Spain", "entry": "SPA ENG SWI JAP AUT GHA QAT PAN"}, {"id": "WCP-10477", "name": "Angus Cowan", "pts": 0, "alive": 8, "joker": "Spain", "entry": "SPA FRA MOR JAP IVO KOR SAU NEW"}, {"id": "WCP-10586", "name": "Anthony Sawyers", "pts": 0, "alive": 8, "joker": "France", "entry": "SPA FRA CRO URU SCO AUT SAF NEW"}, {"id": "WCP-10971", "name": "Apollo", "pts": 0, "alive": 8, "joker": "Mexico", "entry": "FRA ENG MOR MEX PAR EGY DRC SAF"}, {"id": "WCP-10280", "name": "Arran Eagar", "pts": 0, "alive": 8, "joker": "Netherlands", "entry": "FRA NET SWI SWE AUT EGY SAF UZB"}, {"id": "WCP-10936", "name": "ATD World Cup Bonanza", "pts": 0, "alive": 8, "joker": "France", "entry": "SPA FRA CRO MEX CZR AUT SAF NEW"}, {"id": "WCP-10122", "name": "Athletico Kensington 1", "pts": 0, "alive": 8, "joker": "Uruguay", "entry": "ARG POR URU CRO AUT CAN SAU DRC"}, {"id": "WCP-10123", "name": "Athletico Kensington 2", "pts": 0, "alive": 8, "joker": "Colombia", "entry": "GER NET MOR COL CZR KOR HAI PAN"}, {"id": "WCP-10124", "name": "Athletico Kensington 3", "pts": 0, "alive": 8, "joker": "Switzerland", "entry": "FRA ENG JAP SWI SCO EGY CVD QAT"}, {"id": "WCP-10009", "name": "Atkins FC", "pts": 0, "alive": 8, "joker": "Argentina", "entry": "BRA ARG JAP COL IVO PAR IRQ CVD"}, {"id": "WCP-10010", "name": "Atkins Football Club", "pts": 0, "alive": 8, "joker": "England", "entry": "ENG POR SWI MEX GHA KOR CUR SAU"}, {"id": "WCP-10390", "name": "Auzzie 1", "pts": 0, "alive": 8, "joker": "Brazil", "entry": "NET BRA ECU USA AUT KOR CVD DRC"}], "conditions": [{"id": "aut_adv", "label": "Austria advance", "region": "ALL", "w": 2, "status": "pending", "note": "on all 3 tickets", "detail": "Worth ~30-60 group pts on ALL THREE tickets plus the knockout door. Decided 17 / 22 / 27 Jun. Top two qualify and even 3rd can sneak through (8 of 12 thirds do)."}, {"id": "aut_arg", "label": "Result v Argentina", "region": "ALL", "w": 2, "status": "pending", "note": "draw = +80 everywhere", "detail": "A draw = +80, a win = +160 \u2014 and we hold Austria on all three tickets. Mon 22 Jun, 6pm UK, Dallas. The single biggest group-stage moment we own."}, {"id": "fra_champ", "label": "France win it all", "region": "T1T3", "w": 6, "status": "pending", "note": "the double joker", "detail": "The engine of T1+T3: a title run is ~1,000+ pts BEFORE the joker doubles it. Only banks on 19 July. Checkpoints: Norway 26 Jun (+80 becomes +160 doubled), then every knockout at rating \u00d74."}, {"id": "spa_deep", "label": "Spain to the final", "region": "T1T2", "w": 5, "status": "pending", "note": "T2's joker, T1's wingman", "detail": "T2's doubled joker and T1's second giant. Reaching the final is ~700+ pts. Watch: Uruguay 26 Jun, then a knockout half containing Belgium and Germany."}, {"id": "mor_run", "label": "Morocco QF run", "region": "T1T2", "w": 3, "status": "pending", "note": "Brazil result = jackpot", "detail": "The Brazil opener (Sat 13) is the prize: draw +85, win +170, on two tickets. A 2022-style quarter-final run is ~400+ pts each. Goals pay 3/6."}, {"id": "col_run", "label": "Colombia QF run", "region": "T1T2", "w": 3, "status": "pending", "note": "goals pay 3 each", "detail": "South America's second-top scorers \u2014 goals pay 3 (6 in knockouts). Portugal game = 70/140. A quarter-final run is ~400+ pts on two tickets."}, {"id": "can_ko", "label": "Canada KO win", "region": "T1T2", "w": 2, "status": "pending", "note": "home soil", "detail": "The group is soft (Qatar, Bosnia) \u2014 the real value is ONE home-soil knockout win at opponent rating \u00d74, plus clean-sheet bonuses along the way."}, {"id": "drc_pts", "label": "DR Congo points", "region": "T1T2", "w": 1, "status": "pending", "note": "beat Uzbekistan 27 Jun", "detail": "Goals (+3 each) and the Uzbekistan decider on 27 Jun. The win itself pays little, but advancing as a third-place team opens a \u00d74 knockout payday."}, {"id": "sau_coin", "label": "Saudi beat Panama & SAF", "region": "T1", "w": 2, "status": "pending", "note": "the clone decider", "detail": "Our tiebreak against the clones: we out-rank Ben Corry 2 only if Saudi out-score Panama, and Robert White 3 only if they beat South Africa's total. Every Saudi goal and clean sheet is a point ON the clones."}, {"id": "eng_final", "label": "England to the final", "region": "T2", "w": 4, "status": "pending", "note": "opposite half to Spain", "detail": "T2's second path: England's half runs through Brazil (+340) and Argentina (+320) at \u00d74. A final appearance is ~650+ pts."}, {"id": "pan_result", "label": "Panama nick a result", "region": "T2", "w": 1, "status": "pending", "note": "a draw v England = 90", "detail": "A draw v Croatia = +12; a draw v ENGLAND = +90. Plus goals. Any point Panama takes is nearly pure profit on T2."}, {"id": "arg_final", "label": "Argentina to the final", "region": "T3", "w": 4, "status": "pending", "note": "Messi's last dance", "detail": "T3's other engine: a run to the final is ~700+ pts. The Austria game (22 Jun) pays us twice \u2014 we hold both sides of it."}, {"id": "jap_deep", "label": "Japan deep run", "region": "T3", "w": 2, "status": "pending", "note": "giant-killers", "detail": "Beat Germany AND Spain in 2022. A Netherlands result = 50/100; a last-16-or-better run is ~300+ pts on T3."}, {"id": "uru_deep", "label": "Uruguay deep run", "region": "T3", "w": 2, "status": "pending", "note": "Spain game 27 Jun", "detail": "The Spain game (26 Jun) is the 100/200 lottery ticket; after that every knockout win pays rating \u00d74."}, {"id": "ivo_adv", "label": "Ivory Coast advance", "region": "T3", "w": 1, "status": "pending", "note": "just beat France in a friendly", "detail": "Literally beat France in a friendly last week. A Germany draw = +60; advancing buys a \u00d74 knockout shot."}, {"id": "uzb_adv", "label": "Uzbekistan into last 32", "region": "T3", "w": 1, "status": "pending", "note": "third place is enough", "detail": "Third place can be enough \u2014 8 of 12 thirds advance. The DR Congo decider (27 Jun) likely settles it. Advancing = a bonus knockout game."}, {"id": "cvd_result", "label": "Cape Verde get a result", "region": "T3", "w": 1, "status": "pending", "note": "Saudi decider 27 Jun", "detail": "The Saudi decider (27 Jun) plus goals along the way. A surprise point off Uruguay (+15) would be gravy on T3."}], "total": 1080, "history": [], "mini_league": {"name": "Jeff's Family Mini League", "members": []}, "rival_notes": {"Atkins Athletic": "IDENTICAL 8 teams to WCP(1) \u2014 but they joker SPAIN, we joker FRANCE. Spain-world they edge us; France-world we edge them.", "Ben Corry 2": "7/8 shared with WCP(1) + the SAME France joker. Differs only: their Panama v our Saudi. Our closest shadow.", "Robert White 3": "7/8 shared with WCP(1) + same France joker. Differs only: their South Africa v our Saudi.", "Captain's Fourball No 1": "7/8 shared with WCP(1), Spain joker.", "MAC 2": "The model's #1 contender \u2014 Portugal-joker kingdom, the world we're absent from.", "Rice Rice Baby 2": "France joker like us, with an Argentina twist.", "Monique Rocastle WC2": "Spain joker, Brazil-flavoured build.", "Cash is King 3": "Netherlands joker \u2014 another world we don't own.", "Ryley Finlay": "England-joker contender."}};
+let DATA=SEED, OURS=new Set(SEED.ours), FOCUS=null, RTAB='clones', FTAB='today';
+const PIN=new Set([].concat(SEED.rivals.clones,SEED.rivals.contenders));
+const fmt=n=>n.toLocaleString('en-GB');
+const rankify=lb=>{const s=[...lb].sort((a,b)=>b.pts-a.pts);let r=0,last=null;s.forEach((e,i)=>{if(e.pts!==last){r=i+1;last=e.pts}e.rank=r});return s};
+
+const VR={T1:[205,210],T2:[595,210],T3:[400,548],T1T2:[400,202],T1T3:[286,408],T2T3:[514,408],ALL:[400,340]};
+const RCAP={T1:160,T2:160,T3:170,T1T2:132,T1T3:124,T2T3:124,ALL:166};
+const TSETS={T1:["T1","T1T2","T1T3","ALL"],T2:["T2","T1T2","T2T3","ALL"],T3:["T3","T1T3","T2T3","ALL"]};
+const TIX=["T1","T2","T3"];
+let SELECTED=null;
+function renderVenn(){
+ const C=DATA.conditions||[]; const svg=document.getElementById('venn'); if(!svg) return;
+ svg.setAttribute('viewBox','0 0 800 672');
+ const sel=C.find(c=>c.id===SELECTED);
+ const circ=[["T1",310,272,"#FFD52D"],["T2",490,272,"#5BE0E6"],["T3",400,458,"#2FB46B"]];
+ const frac=t=>{const rel=C.filter(c=>TSETS[t].includes(c.region));const W=rel.reduce((s,c)=>s+c.w,0)||1;
+  return{bank:rel.filter(c=>c.status==='banked').reduce((s,c)=>s+c.w,0)/W,
+         alive:rel.filter(c=>c.status!=='dead').reduce((s,c)=>s+c.w,0)/W}};
+ let s='';
+ circ.forEach(([t,x,y,col])=>{const f=frac(t);const dimmed=FOCUS&&FOCUS!==t;
+  const hot=sel&&TSETS[t].includes(sel.region);
+  s+=`<circle class="vcirc" data-t="${t}" cx="${x}" cy="${y}" r="196" fill="${col}" fill-opacity="${dimmed?0.03:(0.07+0.5*f.bank).toFixed(2)}" stroke="${col}" stroke-opacity="${dimmed?0.25:(hot?1:0.85)}" stroke-width="${hot?4:2}"/>`;
+  const lx=t==='T1'?96:(t==='T2'?704:400), ly=t==='T3'?664:64, anc=t==='T3'?'middle':(t==='T1'?'start':'end');
+  s+=`<text class="vlab" data-t="${t}" x="${lx}" y="${ly}" text-anchor="${anc}" ${dimmed?'opacity=".4"':''}>${t} · banked ${Math.round(f.bank*100)}% · alive ${Math.round(f.alive*100)}%</text>`});
+ const groups={}; C.forEach(c=>{(groups[c.region]=groups[c.region]||[]).push(c)});
+ const col={pending:["#22345F","#9FB0D8","#2A3D72"],on:["#11304F","#5BE0E6","#5BE0E6"],banked:["#FFD52D","#102040","#FFD52D"],dead:["#2A1626","#FF8A95","#FF5A6E"]};
+ let k=0;
+ for(const[reg,items]of Object.entries(groups)){const[ax,ay]=(VR[reg]||[400,304]);
+  items.forEach((c,i)=>{const y=ay+(i-(items.length-1)/2)*(reg==='T1T2'?23:25);const w=Math.min(RCAP[reg]||160,c.label.length*6.05+14);
+   const[bg,fg,bd]=col[c.status]||col.pending;
+   const inFocus=!FOCUS||TSETS[FOCUS].includes(c.region);
+   const isSel=SELECTED===c.id;
+   s+=`<g class="vchip" data-id="${c.id}" style="opacity:${inFocus?(c.status==='dead'?0.55:1):0.12};transition:opacity .5s">
+   <g class="chipin ${c.status==='banked'?'banked':''}" style="animation-delay:${k*45}ms;transform-origin:${ax}px ${y}px">
+   <rect x="${ax-w/2}" y="${y-11}" width="${w}" height="22" rx="6" fill="${bg}" stroke="${isSel?'#fff':bd}" stroke-width="${isSel?2.2:1.2}"/>
+   <text x="${ax}" y="${y+4}" text-anchor="middle" font-size="9.5" font-family="IBM Plex Mono" fill="${fg}" ${c.status==='dead'?'text-decoration="line-through"':''} style="pointer-events:none">${c.label}</text></g></g>`;k++})}
+ svg.innerHTML=s;
+}
+document.getElementById('venn').addEventListener('click',e=>{
+ const chip=e.target.closest('.vchip');
+ if(chip){const c=(DATA.conditions||[]).find(x=>x.id===chip.dataset.id);if(c){
+  SELECTED=SELECTED===c.id?null:c.id;
+  const tix=TIX.filter(t=>TSETS[t].includes(c.region)).join(' + ');
+  const colr={pending:'var(--dim)',on:'var(--cyn)',banked:'var(--yel)',dead:'var(--red)'}[c.status];
+  document.getElementById('vdetail').innerHTML=SELECTED?`<b>${c.label}</b><span class="st" style="color:${colr}">${c.status}</span> · feeds ${tix} · weight ${c.w}<br>${c.detail||c.note}`:'<b>Seventeen lights, waiting.</b>Every chip is one thing that has to happen. Tap any of them.';
+  renderVenn();}return}
+ const lab=e.target.closest('[data-t]');
+ if(lab){FOCUS=FOCUS===lab.dataset.t?null:lab.dataset.t;SELECTED=null;renderVenn();markFocus()}
+});
+function markFocus(){TIX.forEach((t,i)=>{const el=document.getElementById('tc'+i);if(el)el.classList.toggle('focused',FOCUS===t)});
+ document.getElementById('vhint').textContent=FOCUS?FOCUS+"'s world — tap again to release":'tap a chip · tap a ticket card to focus its world'}
+
+const J2C={France:'FRA',Spain:'SPA',England:'ENG',Argentina:'ARG'};
+function spark(id){const H=DATA.history||[];const pts=H.map(x=>x.r&&x.r[id]?x.r[id][0]:null).filter(v=>v!=null);
+ if(pts.length<2)return '<span class="mv" style="opacity:.55">rank history starts tonight</span>';
+ const w=110,hh=20,mx=Math.max(...pts),mn=Math.min(...pts);
+ const xs=pts.map((p,i)=>[i/(pts.length-1)*w, mx===mn?hh/2:((p-mn)/(mx-mn)*(hh-4)+2)]);
+ const d=xs.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+ const dlt=pts[0]-pts[pts.length-1];
+ return `<svg class="spark" width="${w}" height="${hh}"><path d="${d}" fill="none" stroke="var(--cyn)" stroke-width="1.5"/></svg> <span class="mv ${dlt>0?'up':dlt<0?'dn':''}">${dlt>0?'\u25b2'+dlt:dlt<0?'\u25bc'+(-dlt):'\u2014'}</span>`}
+function nextFix(t){const now=Date.now();const f=(DATA.fixtures||[]).find(f=>f.tickets.split(' ').includes(t)&&new Date(f.utc)>now);
+ return f?`next: <b style="color:var(--ink)">${f.match}</b> \u00b7 ${new Date(f.utc).toLocaleDateString('en-GB',{weekday:'short'})}`:''}
+function buildTicker(lb,ours,TOTAL,byName){
+ const now=Date.now(),parts=[];
+ const fifth=lb[4]?lb[4].pts:0,bestPts=ours.length?Math.max(...ours.map(e=>e.pts)):0;
+ (DATA.fixtures||[]).filter(f=>new Date(f.utc)>now).slice(0,3).forEach(f=>{
+  const d=new Date(f.utc),hrs=Math.max(1,Math.round((d-now)/36e5));
+  parts.push(`${f.match.toUpperCase()} ${hrs<=48?('IN '+hrs+'H'):d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric'}).toUpperCase()} \u2014 ${f.why.toUpperCase()}`)});
+ if(bestPts>0){parts.push(`BEST TICKET ${fmt(bestPts)} PTS \u00b7 GAP TO THE MONEY ${fmt(Math.max(0,fifth-bestPts))}`);
+  const c=DATA.rivals.clones.map(n=>byName[n]).filter(Boolean).sort((a,b)=>b.pts-a.pts)[0];
+  if(c)parts.push(`CLOSEST RIVAL: ${c.name.toUpperCase()} ${fmt(c.pts)} PTS (P${c.rank})`)}
+ const C=DATA.conditions||[],bk=C.filter(x=>x.status==='banked').length,dd=C.filter(x=>x.status==='dead').length;
+ parts.push(`RECIPE LIGHTS: ${bk} BANKED \u00b7 ${C.length-bk-dd} WAITING${dd?(' \u00b7 '+dd+' DEAD'):''}`);
+ parts.push(`PRIZES \u00a31,700 / \u00a31,200 / \u00a3900 / \u00a3600 / \u00a3387 \u00b7 ${fmt(TOTAL)} ENTRIES`);
+ return '\u2605 '+parts.join('   \u2605   ')+' \u2605';
+}
+function render(){
+ const lb=rankify(DATA.leaderboard);
+ const byName=Object.fromEntries(lb.map(e=>[e.name,e]));
+ const ours=lb.filter(e=>OURS.has(e.id));
+ const fifth=lb[4]?lb[4].pts:0;
+ const TOTAL=DATA.total||lb.length;
+ const ALLZERO=lb.every(e=>e.pts===0);
+ const bestPts=ours.length?Math.max(...ours.map(e=>e.pts)):0;
+ // ticket cards
+ ours.sort((a,b)=>a.id<b.id?-1:1).forEach((e,i)=>{const m=DATA.ticket_meta[e.id]||{};const md=m.model||{};
+  const el=document.getElementById('tc'+i); if(!el)return;
+  el.innerHTML=`<div class="lbl">${m.label||e.name}<span class="jk">JK ${(m.joker||e.joker).toUpperCase()}</span></div>
+   <div class="rank">${ALLZERO?'=':e.rank}<small> / ${fmt(TOTAL)} · ${fmt(e.pts)} pts${ALLZERO?' · all level':''}</small></div>
+   <div class="meta">alive <b>${e.alive}/8</b> · prize odds <b>${md.p_top5}%</b>${DATA.odds_updated?' <span class=\"mv up\">live</span>':''} · £${md.exp_gbp} eq.</div>
+   <div class="pickrow">${(e.entry||'').split(' ').map(c=>`<span class="pk ${J2C[m.joker]===c?'j':''}">${c}</span>`).join('')}</div>
+   <div class="meta">${spark(e.id)}</div><div class="meta">${nextFix(TIX[i])}</div>`;
+  el.onclick=()=>{FOCUS=FOCUS===TIX[i]?null:TIX[i];renderVenn();markFocus()};});
+ // ticker
+ const tk=buildTicker(lb,ours,TOTAL,byName);document.getElementById('ticker').textContent=tk;document.getElementById('ticker2').textContent=tk;
+ // fixtures
+ const ftabs={today:'NEXT UP',all:'ALL FIXTURES'};
+ document.getElementById('ftabs').innerHTML=Object.entries(ftabs).map(([k,v])=>`<button class="${FTAB===k?'on':''}" data-f="${k}">${v}</button>`).join('');
+ document.querySelectorAll('#ftabs button').forEach(b=>b.onclick=()=>{FTAB=b.dataset.f;render()});
+ const now=Date.now();
+ const maxsw={"T1 T2 T3":1,"T1 T3":0.85,"T1 T2":0.8,"T2 T3":0.7,"T2":0.55,"T1":0.5,"T3":0.5};
+ let flist=DATA.fixtures.filter(f=>new Date(f.utc).getTime()>now-3*36e5);
+ if(FTAB==='today'&&flist.length){
+  const d0=new Date(flist[0].utc).toDateString();
+  flist=flist.filter(f=>new Date(f.utc).toDateString()===d0);
+  const isToday=new Date().toDateString()===d0;
+  document.getElementById('fixtitle').textContent=isToday?"Today's Orders":("Next Orders · "+new Date(flist[0].utc).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'short'}));
+ } else {document.getElementById('fixtitle').textContent='All Fixtures That Matter';}
+ document.getElementById('fixtures').innerHTML=flist.map(f=>{
+  const d=new Date(f.utc);const dd=d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+  const tt=f.tbc?'TBC':d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  return `<div class="fx"><div class="top"><span>${dd} · ${tt}</span><span class="cd" data-utc="${f.utc}" data-tbc="${f.tbc?1:0}"></span></div>
+  <div class="m">${f.match}</div><div class="why">${FTAB==='today'?(f.want||f.why):f.why}</div>
+  <div class="chips">${f.tickets.split(' ').map(t=>`<span class="chip">${t}</span>`).join('')}</div>
+  <div class="swing"><i style="width:${Math.round((maxsw[f.tickets]||0.5)*100)}%"></i></div></div>`}).join('');
+ tickCountdowns();
+ // race tabs + rows
+ const tabs={clones:'SIMILAR',contenders:'CONTENDERS',family:'FAMILY'};
+ document.getElementById('rtabs').innerHTML=Object.entries(tabs).map(([k,v])=>`<button class="${RTAB===k?'on':''}" data-tab="${k}">${v}</button>`).join('');
+ document.querySelectorAll('#rtabs button').forEach(b=>b.onclick=()=>{RTAB=b.dataset.tab;render()});
+ const rsrc=RTAB==='family'?((DATA.mini_league&&DATA.mini_league.members)||[]):(DATA.rivals[RTAB]||[]);
+ const rivalRows=rsrc.map(n=>lb.find(e=>e.name===n||e.name.startsWith(n))).filter(Boolean);
+ if(RTAB==='family'&&rivalRows.length===0){
+  document.getElementById('race').innerHTML=`<div style="padding:14px;font-size:12px;color:var(--dim);line-height:1.6">No family entries loaded yet. Send Claude the names from Jeff&#8217;s mini-league page and they&#8217;ll race here against our three.</div>`;
+ } else {
+ const race=[...ours,...rivalRows].sort((a,b)=>a.rank-b.rank);
+ const maxPts=Math.max(1,...race.map(e=>e.pts));
+ document.getElementById('race').innerHTML=race.map(e=>{
+  const us=OURS.has(e.id);const gap=e.pts-bestPts;
+  return `<div class="rrow ${us?'us':''}" data-eid="${e.id}"><span class="rk">${ALLZERO?'=':e.rank}</span>
+   <span class="nm">${e.name}<small>jk ${e.joker} · ${e.alive}/8${SN[e.name]?(' · '+SN[e.name]):''}</small></span>
+   <span class="pt">${fmt(e.pts)}</span><span class="gp">${us?'US':(ALLZERO?'level':(gap>0?'+':'')+fmt(gap))}</span></div>
+   <div class="bar"><i style="width:${Math.round(e.pts/maxPts*100)}%"></i></div>`}).join('');}
+ // leaderboard
+ document.getElementById('pinned').innerHTML=ours.map(e=>`<div class="lrow us" data-eid="${e.id}"><span class="rk">${ALLZERO?'=':e.rank}</span><span>${e.name}</span><span class="pt">${fmt(e.pts)}</span><span class="al">${e.alive}/8</span></div>`).join('');
+ window.ALLZ=ALLZERO; window.TOT=TOTAL; drawLB(lb,document.getElementById('q').value||'');
+ document.getElementById('lbcount').textContent=fmt(TOTAL)+' entries · live';
+ // coverage strip
+ document.getElementById('cov').innerHTML='<span class="lbl">IF THEY WIN IT →</span>'+DATA.coverage.map(c=>`<span class="cc ${c[3]}">${c[0]} <small>${c[1]} · ${c[2]}</small></span>`).join('');
+ const day=Math.min(39,Math.max(1,Math.floor((Date.now()-Date.parse('2026-06-11T00:00:00Z'))/864e5)+1));
+ document.getElementById('upd').textContent='DAY '+day+'/39 · updated '+new Date(DATA.generated_at).toLocaleString('en-GB',{weekday:'short',hour:'2-digit',minute:'2-digit'})+' · '+DATA.source;
+ renderVenn();markFocus();
+}
+function drawLB(lb,q){
+ const ql=q.trim().toLowerCase();
+ let rows=ql?lb.filter(e=>e.name.toLowerCase().includes(ql)):lb;
+ document.getElementById('lb').innerHTML=(window.ALLZ?'<div style="font-family:IBM Plex Mono;font-size:10.5px;color:var(--dim);padding:4px 4px 8px">All level on 0 pts — positions appear after the first games.</div>':'')+rows.map(e=>
+  `<div class="lrow ${OURS.has(e.id)?'us':(PIN.has(e.name)?'rival':'')}" data-eid="${e.id}"><span class="rk">${window.ALLZ?'=':e.rank}</span><span>${e.name}</span><span class="pt">${fmt(e.pts)}</span><span class="al">${e.alive}/8</span></div>`).join('');
+}
+const CODE_NAME={FRA:'France',SPA:'Spain',ENG:'England',BRA:'Brazil',ARG:'Argentina',POR:'Portugal',GER:'Germany',NET:'Netherlands',NOR:'Norway',BEL:'Belgium',COL:'Colombia',MOR:'Morocco',JAP:'Japan',USA:'USA',URU:'Uruguay',SWI:'Switzerland',MEX:'Mexico',CRO:'Croatia',TUR:'Turkey',ECU:'Ecuador',SEN:'Senegal',SWE:'Sweden',AUT:'Austria',CAN:'Canada',PAR:'Paraguay',SCO:'Scotland',IVO:'Ivory Coast',CZR:'Czechia',EGY:'Egypt',BOS:'Bosnia',ALG:'Algeria',GHA:'Ghana',KOR:'Korea',AUS:'Australia',TUN:'Tunisia',IRA:'Iran',DRC:'DR Congo',SAF:'South Africa',SAU:'Saudi Arabia',QAT:'Qatar',NEW:'New Zealand',PAN:'Panama',CVD:'Cape Verde',IRQ:'Iraq',UZB:'Uzbekistan',JOR:'Jordan',CUR:'Curacao',HAI:'Haiti'};
+const SN={'Atkins Athletic':'8/8 picks, jk differs','Ben Corry 2':'7/8 + same jk','Robert White 3':'7/8 + same jk',"Captain's Fourball No 1":'7/8 picks'};
+function openEntry(id){
+ const lb=rankify(DATA.leaderboard);
+ const e=lb.find(x=>x.id===id); if(!e) return;
+ const ours=lb.filter(x=>OURS.has(x.id)).sort((a,b)=>a.id<b.id?-1:1);
+ const ourCodes=new Set(ours.flatMap(o=>(o.entry||'').split(' ')));
+ const codes=(e.entry||'').split(' ');
+ const isUs=OURS.has(e.id);
+ const tags=codes.map(c=>`<span class="pk ${ourCodes.has(c)?'sh':''}">${CODE_NAME[c]||c}</span>`).join('');
+ const ov=isUs?'<div class="mline">This is one of ours — shared teams below glow gold across the family of three.</div>':
+  ours.map((o,i)=>{const s=new Set((o.entry||'').split(' '));const n=codes.filter(c=>s.has(c)).length;const sj=o.joker===e.joker;
+   return `<div class="mline">vs <b>D&S WCP (${i+1})</b>: ${n}/8 picks shared${sj?' · <b style="color:var(--yel)">same joker</b>':''}</div>`}).join('');
+ const note=(DATA.rival_notes||{})[e.name];
+ const names=codes.map(c=>CODE_NAME[c]||c);
+ const fx=(DATA.fixtures||[]).filter(f=>new Date(f.utc)>Date.now()&&names.some(n=>f.match.includes(n))).slice(0,5)
+  .map(f=>`<div class="mline">· <b>${f.match}</b> — ${new Date(f.utc).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</div>`).join('');
+ document.getElementById('ebody').innerHTML=`
+  <h3>${e.name} <span class="jk">JK ${(e.joker||'').toUpperCase()}</span></h3>
+  <div class="mline">${window.ALLZ?'Level on 0 pts (everyone is)':('P'+e.rank+' · '+fmt(e.pts)+' pts')} · ${e.alive}/8 teams alive</div>
+  ${note?`<div class="mnote">${note}</div>`:''}
+  <div class="msec">Their eight</div><div>${tags}</div>
+  <div class="msec">Versus our tickets</div>${ov}
+  <div class="msec">Games they're sweating (from our watchlist)</div>${fx||'<div class="mline">None of our tracked fixtures involve their teams.</div>'}
+  <div class="mline" style="margin-top:10px;opacity:.7">What's gone right or wrong for them will appear here as results land.</div>
+  <button class="ghost" id="eclose" style="margin-top:12px">CLOSE</button>`;
+ document.getElementById('eclose').onclick=()=>document.getElementById('emodal').classList.remove('open');
+ document.getElementById('emodal').classList.add('open');
+}
+document.addEventListener('click',ev=>{const r=ev.target.closest('[data-eid]');if(r)openEntry(r.dataset.eid)});
+document.getElementById('emodal').addEventListener('click',ev=>{if(ev.target.id==='emodal')ev.target.classList.remove('open')});
+function tickCountdowns(){
+ const now=Date.now();
+ document.querySelectorAll('.cd').forEach(el=>{
+  if(el.dataset.tbc==='1'){el.textContent='KO TBC';return}
+  const ms=new Date(el.dataset.utc)-now;
+  if(ms<0&&ms>-2.2*36e5){el.textContent='LIVE?';return}
+  if(ms<0){el.textContent='FT';return}
+  const h=Math.floor(ms/36e5),m=Math.floor(ms%36e5/6e4);
+  el.textContent=h>48?('in '+Math.floor(h/24)+'d'):('in '+h+'h '+String(m).padStart(2,'0')+'m');});
+}
+setInterval(tickCountdowns,30000);
+document.getElementById('q').addEventListener('input',e=>drawLB(rankify(DATA.leaderboard),e.target.value));
+document.getElementById('howbtn').onclick=()=>document.getElementById('modal').classList.add('open');
+document.getElementById('closem').onclick=()=>document.getElementById('modal').classList.remove('open');
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')e.target.classList.remove('open')});
+async function refresh(){
+ try{const r=await fetch('data.json?t='+Date.now());if(r.ok){DATA=await r.json();OURS=new Set(DATA.ours)}}catch(e){}
+ render();
+}
+refresh();setInterval(refresh,60000);
+</script></body></html>
