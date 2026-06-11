@@ -100,6 +100,10 @@ button.ghost:hover{border-color:var(--cyn)}
 .lrow .rk{font-family:'IBM Plex Mono';color:var(--cyn)}
 .lrow .pt{font-family:'IBM Plex Mono';color:var(--yel);text-align:right}
 .lrow .al{font-family:'IBM Plex Mono';font-size:10.5px;color:var(--dim);text-align:right}
+.tg{font-family:'IBM Plex Mono';font-size:8.5px;letter-spacing:.08em;padding:1px 5px;border-radius:3px;margin-left:6px;vertical-align:1px;white-space:nowrap}
+.tg.out{background:rgba(255,90,110,.16);color:var(--red);border:1px solid rgba(255,90,110,.4)}
+.tg.frz{background:rgba(91,224,230,.1);color:var(--cyn);border:1px solid rgba(91,224,230,.3)}
+.lrow.gone,.rrow.gone{opacity:.55}
 .lrow.us{color:var(--yel);font-weight:700}
 .lrow.rival{color:var(--cyn)}
 .search{width:100%;background:#0A1430;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 10px;font-family:'IBM Plex Mono';font-size:12px;margin-bottom:8px}
@@ -281,6 +285,8 @@ function spark(id){const H=DATA.history||[];const pts=H.map(x=>x.r&&x.r[id]?x.r[
  return `<svg class="spark" width="${w}" height="${hh}"><path d="${d}" fill="none" stroke="var(--cyn)" stroke-width="1.5"/></svg> <span class="mv ${dlt>0?'up':dlt<0?'dn':''}">${dlt>0?'\u25b2'+dlt:dlt<0?'\u25bc'+(-dlt):'\u2014'}</span>`}
 function nextFix(t){const now=Date.now();const f=(DATA.fixtures||[]).find(f=>f.tickets.split(' ').includes(t)&&new Date(f.utc)>now);
  return f?`next: <b style="color:var(--ink)">${f.match}</b> \u00b7 ${new Date(f.utc).toLocaleDateString('en-GB',{weekday:'short'})}`:''}
+function eTag(e){if(window.ALLZ||!window.ALIVEOK||e.alive>0)return '';return e.pts<(window.FIFTH||0)?'OUT':'FROZEN';}
+function eTagHtml(e){const t=eTag(e);return t?` <span class="tg ${t==='OUT'?'out':'frz'}">${t==='OUT'?"CAN'T WIN":'FROZEN'}</span>`:'';}
 function buildTicker(lb,ours,TOTAL,byName){
  const now=Date.now(),parts=[];
  const fifth=lb[4]?lb[4].pts:0,bestPts=ours.length?Math.max(...ours.map(e=>e.pts)):0;
@@ -292,6 +298,8 @@ function buildTicker(lb,ours,TOTAL,byName){
   if(c)parts.push(`CLOSEST RIVAL: ${c.name.toUpperCase()} ${fmt(c.pts)} PTS (P${c.rank})`)}
  const C=DATA.conditions||[],bk=C.filter(x=>x.status==='banked').length,dd=C.filter(x=>x.status==='dead').length;
  parts.push(`RECIPE LIGHTS: ${bk} BANKED \u00b7 ${C.length-bk-dd} WAITING${dd?(' \u00b7 '+dd+' DEAD'):''}`);
+ const nout=(!lb.every(e=>e.pts===0)&&lb.some(e=>e.alive>0))?lb.filter(e=>e.alive===0&&e.pts<fifth).length:0;
+ if(nout)parts.push(fmt(nout)+" ENTRIES CAN'T WIN \u2014 ALL PICKS OUT");
  parts.push(`PRIZES \u00a31,700 / \u00a31,200 / \u00a3900 / \u00a3600 / \u00a3387 \u00b7 ${fmt(TOTAL)} ENTRIES`);
  return '\u2605 '+parts.join('   \u2605   ')+' \u2605';
 }
@@ -302,22 +310,36 @@ function render(){
  const fifth=lb[4]?lb[4].pts:0;
  const TOTAL=DATA.total||lb.length;
  const ALLZERO=lb.every(e=>e.pts===0);
+ window.ALLZ=ALLZERO;window.TOT=TOTAL;window.FIFTH=fifth;window.ALIVEOK=lb.some(x=>x.alive>0);
  const bestPts=ours.length?Math.max(...ours.map(e=>e.pts)):0;
  // ticket cards
  ours.sort((a,b)=>a.id<b.id?-1:1).forEach((e,i)=>{const m=DATA.ticket_meta[e.id]||{};const md=m.model||{};
   const el=document.getElementById('tc'+i); if(!el)return;
   el.innerHTML=`<div class="lbl">${m.label||e.name}<span class="jk">JK ${(m.joker||e.joker).toUpperCase()}</span></div>
-   <div class="rank">${ALLZERO?'=':e.rank}<small> / ${fmt(TOTAL)} · ${fmt(e.pts)} pts${ALLZERO?' · all level':''}</small></div>
-   <div class="meta">alive <b>${e.alive}/8</b> · prize odds <b>${md.p_top5}%</b>${DATA.odds_updated?' <span class=\"mv up\">live</span>':''} · £${md.exp_gbp} eq.</div>
+   <div class="rank">${ALLZERO?'=':e.rank}<small> / ${fmt(TOTAL)} · ${fmt(e.pts)} pts${ALLZERO?' · all level':''}${eTagHtml(e)}</small></div>
+   <div class="meta">alive <b>${ALLZERO?8:e.alive}/8</b> · prize odds <b>${md.p_top5}%</b>${DATA.odds_updated?' <span class=\"mv up\">live</span>':''} · £${md.exp_gbp} eq.</div>
    <div class="pickrow">${(e.entry||'').split(' ').map(c=>`<span class="pk ${J2C[m.joker]===c?'j':''}">${c}</span>`).join('')}</div>
    <div class="meta">${spark(e.id)}</div><div class="meta">${nextFix(TIX[i])}</div>`;
   el.onclick=()=>{FOCUS=FOCUS===TIX[i]?null:TIX[i];renderVenn();markFocus()};});
  // ticker
  const tk=buildTicker(lb,ours,TOTAL,byName);document.getElementById('ticker').textContent=tk;document.getElementById('ticker2').textContent=tk;
  // fixtures
- const ftabs={today:'NEXT UP',all:'ALL FIXTURES'};
+ const ftabs={today:'OUR UP NEXT',all:'ALL FIXTURES',wc:"TODAY'S MATCHES"};
  document.getElementById('ftabs').innerHTML=Object.entries(ftabs).map(([k,v])=>`<button class="${FTAB===k?'on':''}" data-f="${k}">${v}</button>`).join('');
  document.querySelectorAll('#ftabs button').forEach(b=>b.onclick=()=>{FTAB=b.dataset.f;render()});
+ if(FTAB==='wc'){
+  const TM=DATA.today_matches||{};
+  const fresh=TM.date===new Date().toISOString().slice(0,10);
+  const tlist=fresh?(TM.list||[]):[];
+  document.getElementById('fixtitle').textContent="Today's Matches · "+new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'short'});
+  const ourNames=new Set([].concat(...lb.filter(e=>OURS.has(e.id)).map(e=>(e.entry||'').split(' ').map(c=>CODE_NAME[c]||c))));
+  document.getElementById('fixtures').innerHTML=tlist.length?tlist.map(m=>{
+   const hits=[...ourNames].filter(n=>(m.match||'').includes(n));
+   return `<div class="fx"><div class="top"><span>KO ${m.ko||'TBC'} UK</span><span style="font-family:'IBM Plex Mono';font-size:10px;color:var(--yel);letter-spacing:.06em">${m.stage||''}</span></div>
+   <div class="m">${m.match}</div>
+   <div class="chips">${hits.length?hits.map(n=>`<span class="chip" style="border-color:var(--yel);color:var(--yel)">${n.toUpperCase()} · OURS</span>`).join(''):'<span class="chip" style="opacity:.55">neutral — enjoy the football</span>'}</div></div>`}).join('')
+  :`<div style="padding:14px;font-size:12px;color:var(--dim);line-height:1.6">${fresh?"No World Cup matches today — rest day.":"The full day's slate lands here each morning once the daily robot has its API key (Step 13) — every game, UK kick-off times, our teams flagged gold. You can also press Run workflow on the daily robot to fill it right now."}</div>`;
+ } else {
  const now=Date.now();
  const maxsw={"T1 T2 T3":1,"T1 T3":0.85,"T1 T2":0.8,"T2 T3":0.7,"T2":0.55,"T1":0.5,"T3":0.5};
  let flist=DATA.fixtures.filter(f=>new Date(f.utc).getTime()>now-3*36e5);
@@ -325,7 +347,7 @@ function render(){
   const d0=new Date(flist[0].utc).toDateString();
   flist=flist.filter(f=>new Date(f.utc).toDateString()===d0);
   const isToday=new Date().toDateString()===d0;
-  document.getElementById('fixtitle').textContent=isToday?"Today's Orders":("Next Orders · "+new Date(flist[0].utc).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'short'}));
+  document.getElementById('fixtitle').textContent=isToday?"Our Orders Today":("Our Up Next · "+new Date(flist[0].utc).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'short'}));
  } else {document.getElementById('fixtitle').textContent='All Fixtures That Matter';}
  document.getElementById('fixtures').innerHTML=flist.map(f=>{
   const d=new Date(f.utc);const dd=d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
@@ -334,6 +356,7 @@ function render(){
   <div class="m">${f.match}</div><div class="why">${FTAB==='today'?(f.want||f.why):f.why}</div>
   <div class="chips">${f.tickets.split(' ').map(t=>`<span class="chip">${t}</span>`).join('')}</div>
   <div class="swing"><i style="width:${Math.round((maxsw[f.tickets]||0.5)*100)}%"></i></div></div>`}).join('');
+ }
  tickCountdowns();
  // race tabs + rows
  const tabs={clones:'SIMILAR',contenders:'CONTENDERS',family:'FAMILY'};
@@ -348,14 +371,15 @@ function render(){
  const maxPts=Math.max(1,...race.map(e=>e.pts));
  document.getElementById('race').innerHTML=race.map(e=>{
   const us=OURS.has(e.id);const gap=e.pts-bestPts;
-  return `<div class="rrow ${us?'us':''}" data-eid="${e.id}"><span class="rk">${ALLZERO?'=':e.rank}</span>
-   <span class="nm">${e.name}<small>jk ${e.joker} · ${e.alive}/8${SN[e.name]?(' · '+SN[e.name]):''}</small></span>
+  return `<div class="rrow ${us?'us':''}${eTag(e)==='OUT'?' gone':''}" data-eid="${e.id}"><span class="rk">${ALLZERO?'=':e.rank}</span>
+   <span class="nm">${e.name}${eTagHtml(e)}<small>jk ${e.joker} · ${ALLZERO?8:e.alive}/8${SN[e.name]?(' · '+SN[e.name]):''}</small></span>
    <span class="pt">${fmt(e.pts)}</span><span class="gp">${us?'US':(ALLZERO?'level':(gap>0?'+':'')+fmt(gap))}</span></div>
    <div class="bar"><i style="width:${Math.round(e.pts/maxPts*100)}%"></i></div>`}).join('');}
  // leaderboard
- document.getElementById('pinned').innerHTML=ours.map(e=>`<div class="lrow us" data-eid="${e.id}"><span class="rk">${ALLZERO?'=':e.rank}</span><span>${e.name}</span><span class="pt">${fmt(e.pts)}</span><span class="al">${e.alive}/8</span></div>`).join('');
+ document.getElementById('pinned').innerHTML=ours.map(e=>`<div class="lrow us${eTag(e)==='OUT'?' gone':''}" data-eid="${e.id}"><span class="rk">${ALLZERO?'=':e.rank}</span><span>${e.name}${eTagHtml(e)}</span><span class="pt">${fmt(e.pts)}</span><span class="al">${ALLZERO?8:e.alive}/8</span></div>`).join('');
  window.ALLZ=ALLZERO; window.TOT=TOTAL; drawLB(lb,document.getElementById('q').value||'');
  document.getElementById('lbcount').textContent=fmt(TOTAL)+' entries · live';
+ document.getElementById('q').placeholder='search '+fmt(TOTAL)+' entries\u2026';
  // coverage strip
  document.getElementById('cov').innerHTML='<span class="lbl">IF THEY WIN IT →</span>'+DATA.coverage.map(c=>`<span class="cc ${c[3]}">${c[0]} <small>${c[1]} · ${c[2]}</small></span>`).join('');
  const day=Math.min(39,Math.max(1,Math.floor((Date.now()-Date.parse('2026-06-11T00:00:00Z'))/864e5)+1));
@@ -366,7 +390,7 @@ function drawLB(lb,q){
  const ql=q.trim().toLowerCase();
  let rows=ql?lb.filter(e=>e.name.toLowerCase().includes(ql)):lb;
  document.getElementById('lb').innerHTML=(window.ALLZ?'<div style="font-family:IBM Plex Mono;font-size:10.5px;color:var(--dim);padding:4px 4px 8px">All level on 0 pts — positions appear after the first games.</div>':'')+rows.map(e=>
-  `<div class="lrow ${OURS.has(e.id)?'us':(PIN.has(e.name)?'rival':'')}" data-eid="${e.id}"><span class="rk">${window.ALLZ?'=':e.rank}</span><span>${e.name}</span><span class="pt">${fmt(e.pts)}</span><span class="al">${e.alive}/8</span></div>`).join('');
+  `<div class="lrow ${OURS.has(e.id)?'us':(PIN.has(e.name)?'rival':'')}${eTag(e)==='OUT'?' gone':''}" data-eid="${e.id}"><span class="rk">${window.ALLZ?'=':e.rank}</span><span>${e.name}${eTagHtml(e)}</span><span class="pt">${fmt(e.pts)}</span><span class="al">${window.ALLZ?8:e.alive}/8</span></div>`).join('');
 }
 const CODE_NAME={FRA:'France',SPA:'Spain',ENG:'England',BRA:'Brazil',ARG:'Argentina',POR:'Portugal',GER:'Germany',NET:'Netherlands',NOR:'Norway',BEL:'Belgium',COL:'Colombia',MOR:'Morocco',JAP:'Japan',USA:'USA',URU:'Uruguay',SWI:'Switzerland',MEX:'Mexico',CRO:'Croatia',TUR:'Turkey',ECU:'Ecuador',SEN:'Senegal',SWE:'Sweden',AUT:'Austria',CAN:'Canada',PAR:'Paraguay',SCO:'Scotland',IVO:'Ivory Coast',CZR:'Czechia',EGY:'Egypt',BOS:'Bosnia',ALG:'Algeria',GHA:'Ghana',KOR:'Korea',AUS:'Australia',TUN:'Tunisia',IRA:'Iran',DRC:'DR Congo',SAF:'South Africa',SAU:'Saudi Arabia',QAT:'Qatar',NEW:'New Zealand',PAN:'Panama',CVD:'Cape Verde',IRQ:'Iraq',UZB:'Uzbekistan',JOR:'Jordan',CUR:'Curacao',HAI:'Haiti'};
 const SN={'Atkins Athletic':'8/8 picks, jk differs','Ben Corry 2':'7/8 + same jk','Robert White 3':'7/8 + same jk',"Captain's Fourball No 1":'7/8 picks'};
@@ -387,7 +411,8 @@ function openEntry(id){
   .map(f=>`<div class="mline">· <b>${f.match}</b> — ${new Date(f.utc).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</div>`).join('');
  document.getElementById('ebody').innerHTML=`
   <h3>${e.name} <span class="jk">JK ${(e.joker||'').toUpperCase()}</span></h3>
-  <div class="mline">${window.ALLZ?'Level on 0 pts (everyone is)':('P'+e.rank+' · '+fmt(e.pts)+' pts')} · ${e.alive}/8 teams alive</div>
+  <div class="mline">${window.ALLZ?'Level on 0 pts (everyone is)':('P'+e.rank+' · '+fmt(e.pts)+' pts')} · ${window.ALLZ?8:e.alive}/8 teams alive</div>
+  ${eTag(e)==='OUT'?`<div class="mnote" style="border-color:rgba(255,90,110,.45)"><b>CAN'T WIN.</b> All eight picks are out of the tournament — score frozen below the money line, and the five above can only stretch away.</div>`:eTag(e)==='FROZEN'?`<div class="mnote"><b>FROZEN.</b> All eight picks are out — score locked while holding a prize place. They can be caught; they can't climb.</div>`:''}
   ${note?`<div class="mnote">${note}</div>`:''}
   <div class="msec">Their eight</div><div>${tags}</div>
   <div class="msec">Versus our tickets</div>${ov}
