@@ -1,0 +1,22 @@
+name: Update leaderboard
+on:
+  schedule:
+    - cron: "*/20 * * * *"
+  workflow_dispatch:
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: python update_data.py
+      - name: Commit if changed
+        run: |
+          git config user.name "wc-bot"
+          git config user.email "bot@berkeleyhome.co.uk"
+          git add data.json
+          git diff --cached --quiet || git commit -m "leaderboard update"
+          git push
