@@ -153,7 +153,7 @@ details .a b{color:var(--ink)}.ok{color:var(--grn);font-weight:800}
 <header>
  <div class="brand">DEC &amp; SAM <span>· WC26 WAR ROOM</span></div>
  <div class="hbtn">
-  <a class="ghost" style="text-decoration:none;display:inline-block" href="https://www.jeffkeencharitychallenge.co.uk/worldcup2026/" target="_blank" rel="noopener">JEFF&#8217;S SITE &#8599;</a>
+  
   <button class="ghost" id="howbtn">HOW IT WORKS</button>
   <div class="live"><b>●</b> <span id="upd">connecting…</span></div>
  </div>
@@ -359,14 +359,12 @@ function render(){
  }
  tickCountdowns();
  // race tabs + rows
- const tabs={clones:'SIMILAR',contenders:'CONTENDERS',family:'FAMILY'};
+ const tabs={clones:'SIMILAR',contenders:'CONTENDERS'};
  document.getElementById('rtabs').innerHTML=Object.entries(tabs).map(([k,v])=>`<button class="${RTAB===k?'on':''}" data-tab="${k}">${v}</button>`).join('');
  document.querySelectorAll('#rtabs button').forEach(b=>b.onclick=()=>{RTAB=b.dataset.tab;render()});
- const rsrc=RTAB==='family'?((DATA.mini_league&&DATA.mini_league.members)||[]):(DATA.rivals[RTAB]||[]);
+ const rsrc=DATA.rivals[RTAB]||[];
  const rivalRows=rsrc.map(n=>lb.find(e=>e.name===n||e.name.startsWith(n))).filter(Boolean);
- if(RTAB==='family'&&rivalRows.length===0){
-  document.getElementById('race').innerHTML=`<div style="padding:14px;font-size:12px;color:var(--dim);line-height:1.6">No family entries loaded yet. Send Claude the names from Jeff&#8217;s mini-league page and they&#8217;ll race here against our three.</div>`;
- } else {
+ {
  const race=[...ours,...rivalRows].sort((a,b)=>a.rank-b.rank);
  const maxPts=Math.max(1,...race.map(e=>e.pts));
  document.getElementById('race').innerHTML=race.map(e=>{
@@ -383,7 +381,8 @@ function render(){
  // coverage strip
  document.getElementById('cov').innerHTML='<span class="lbl">IF THEY WIN IT →</span>'+DATA.coverage.map(c=>`<span class="cc ${c[3]}">${c[0]} <small>${c[1]} · ${c[2]}</small></span>`).join('');
  const day=Math.min(39,Math.max(1,Math.floor((Date.now()-Date.parse('2026-06-11T00:00:00Z'))/864e5)+1));
- document.getElementById('upd').textContent='DAY '+day+'/39 · updated '+new Date(DATA.generated_at).toLocaleString('en-GB',{weekday:'short',hour:'2-digit',minute:'2-digit'})+' · '+DATA.source;
+ const srcw=/kept last good|failed|too small/i.test(DATA.source||'')?' · \u26a0 '+DATA.source:'';
+ document.getElementById('upd').textContent='DAY '+day+'/39 · updated '+new Date(DATA.generated_at).toLocaleString('en-GB',{weekday:'short',hour:'2-digit',minute:'2-digit'})+srcw;
  renderVenn();markFocus();
 }
 function drawLB(lb,q){
