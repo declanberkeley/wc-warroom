@@ -146,9 +146,43 @@ details .a b{color:var(--ink)}.ok{color:var(--grn);font-weight:800}
 .msec{font-family:Unbounded;font-size:9px;letter-spacing:2px;color:var(--cyn);margin:12px 0 5px;text-transform:uppercase}
 #ebody .pk{font-size:10px;padding:2px 6px;margin:2px;display:inline-block}
 @media (prefers-reduced-motion:reduce){.ticker .in{animation:none;padding-left:12px}.banked{animation:none}.fx:hover{transform:none}.chipin{animation:none;opacity:1}}
-@media (max-width:1100px){body{overflow:auto}.app{height:auto}.main{grid-template-columns:1fr}.colC{grid-template-rows:480px 168px}.colL{grid-template-rows:repeat(3,110px)}}
+#vmobile{display:none;flex-direction:column;gap:6px}
+.vmrow{display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;font-size:12.5px;cursor:pointer}
+.vmrow.sel{border-color:var(--yel);box-shadow:0 0 0 1px var(--yel) inset}
+.vmrow .dot{width:9px;height:9px;border-radius:50%;flex:none}
+.vmrow .lab{flex:1;color:var(--ink)}
+.vmrow .tk{font-family:'IBM Plex Mono';font-size:9.5px;color:var(--dim);letter-spacing:.05em;white-space:nowrap}
+@media (max-width:1100px){body{overflow:auto}.app{height:auto}.main{grid-template-columns:1fr}.colC{grid-template-rows:480px 168px}.colL{grid-template-rows:repeat(3,auto)}.tcard{height:auto;padding:12px 14px}}
+#mnav{display:none}
+@media (max-width:760px){
+ body{overflow:auto}
+ .app{height:auto;padding:8px 8px calc(76px + env(safe-area-inset-bottom))}
+ .live{font-size:10px;white-space:normal;text-align:right}
+ .main{display:flex;flex-direction:column;gap:8px}
+ .col{display:contents}
+ .tcard{height:auto;padding:12px 14px}
+ [data-m]{display:none!important}
+ body[data-mtab="tickets"] [data-m="tickets"]{display:flex!important}
+ body[data-mtab="venn"] [data-m="venn"]{display:flex!important}
+ body[data-mtab="fix"] [data-m="fix"]{display:flex!important}
+ body[data-mtab="race"] [data-m="race"]{display:flex!important}
+ body[data-mtab="table"] [data-m="table"]{display:flex!important}
+ .vennbox{position:static;display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+ #venn{min-width:740px;height:auto}
+ .vleg{position:static;display:flex;flex-wrap:wrap;gap:10px;margin:8px 12px 0}
+ .vdetail{position:static;max-width:none;margin:10px 12px 4px}
+ #vmobile{display:flex;margin:10px 12px 12px}
+ .rail{flex-direction:column;overflow-x:visible}
+ .fx{min-width:0}
+ #race{max-height:none}
+ .modal{padding:10px}
+ .phead{flex-wrap:wrap;gap:6px}
+ #mnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;background:#0B142E;border-top:1px solid var(--line);padding:8px 8px calc(8px + env(safe-area-inset-bottom));gap:6px}
+ #mnav button{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--dim);font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.12em;padding:9px 0;border-radius:8px;cursor:pointer}
+ #mnav button.on{color:#0C1733;background:var(--yel);border-color:var(--yel);font-weight:700}
+}
 </style></head>
-<body>
+<body data-mtab="tickets">
 <div class="app">
 <header>
  <div class="brand">DEC &amp; SAM <span>· WC26 WAR ROOM</span></div>
@@ -163,32 +197,33 @@ details .a b{color:var(--ink)}.ok{color:var(--grn);font-weight:800}
 <div class="main">
  <!-- LEFT: tickets -->
  <div class="col colL">
-  <div class="panel"><div class="tcard" id="tc0"></div></div>
-  <div class="panel"><div class="tcard" id="tc1"></div></div>
-  <div class="panel"><div class="tcard" id="tc2"></div></div>
+  <div class="panel" data-m="tickets"><div class="tcard" id="tc0"></div></div>
+  <div class="panel" data-m="tickets"><div class="tcard" id="tc1"></div></div>
+  <div class="panel" data-m="tickets"><div class="tcard" id="tc2"></div></div>
  </div>
  <!-- CENTER: venn + fixtures -->
  <div class="col colC">
-  <div class="panel">
+  <div class="panel" data-m="venn">
    <div class="phead"><h2>The Absorption Venn</h2><div class="sub" id="vhint">tap a chip · tap a ticket card to focus its world</div></div>
    <div class="vennbox">
     <svg id="venn" viewBox="0 0 760 620" role="img" aria-label="Interactive Venn of the three tickets' winning conditions"></svg>
     <div class="vleg"><span><i style="background:#22345F"></i>pending</span><span><i style="background:#5BE0E6"></i>on track</span><span><i style="background:#FFD52D"></i>banked</span><span><i style="background:#FF5A6E"></i>dead</span></div>
     <div class="vdetail" id="vdetail"><b>Seventeen lights, waiting.</b>Every chip is one thing that has to happen. Tap any of them.</div>
+    <div id="vmobile"></div>
    </div>
   </div>
-  <div class="panel">
+  <div class="panel" data-m="fix">
    <div class="phead"><h2 id="fixtitle">Today&#8217;s Orders</h2><div class="tabs" id="ftabs"></div></div>
    <div class="rail" id="fixtures"></div>
   </div>
  </div>
  <!-- RIGHT: race + leaderboard -->
  <div class="col colR">
-  <div class="panel">
+  <div class="panel" data-m="race">
    <div class="phead"><h2>The Race</h2><div class="tabs" id="rtabs"></div></div>
    <div class="pbody" id="race"></div>
   </div>
-  <div class="panel">
+  <div class="panel" data-m="table">
    <div class="phead"><h2>Global Leaderboard</h2><div class="sub" id="lbcount"></div></div>
    <div class="pbody">
     <div class="pin"><div class="tag">PINNED · OUR TICKETS</div><div id="pinned"></div></div>
@@ -199,8 +234,15 @@ details .a b{color:var(--ink)}.ok{color:var(--grn);font-weight:800}
  </div>
 </div>
 
-<div class="cstrip" id="cov"></div>
+<div class="cstrip" id="cov" data-m="tickets"></div>
 </div>
+<nav id="mnav">
+ <button data-mt="tickets" class="on">TICKETS</button>
+ <button data-mt="fix">GAMES</button>
+ <button data-mt="venn">VENN</button>
+ <button data-mt="race">RACE</button>
+ <button data-mt="table">TABLE</button>
+</nav>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true">
  <div class="mcard">
@@ -275,6 +317,17 @@ document.getElementById('venn').addEventListener('click',e=>{
 function markFocus(){TIX.forEach((t,i)=>{const el=document.getElementById('tc'+i);if(el)el.classList.toggle('focused',FOCUS===t)});
  document.getElementById('vhint').textContent=FOCUS?FOCUS+"'s world — tap again to release":'tap a chip · tap a ticket card to focus its world'}
 
+function renderVmobile(){const el=document.getElementById('vmobile');if(!el)return;
+ const C=DATA.conditions||[];const dotc={pending:'#22345F',on:'#5BE0E6',banked:'#FFD52D',dead:'#FF5A6E'};
+ el.innerHTML=C.map(c=>{const tix=TIX.filter(t=>TSETS[t].includes(c.region)).join('+');
+  return `<div class="vmrow ${SELECTED===c.id?'sel':''}" data-cid="${c.id}"><span class="dot" style="background:${dotc[c.status]||dotc.pending};${c.status==='pending'?'border:1px solid var(--line)':''}"></span><span class="lab">${c.label}</span><span class="tk">${tix}</span></div>`}).join('');}
+document.getElementById('vmobile').addEventListener('click',e=>{const r=e.target.closest('[data-cid]');if(!r)return;
+ const c=(DATA.conditions||[]).find(x=>x.id===r.dataset.cid);if(!c)return;
+ SELECTED=SELECTED===c.id?null:c.id;
+ const tix=TIX.filter(t=>TSETS[t].includes(c.region)).join(' + ');
+ const colr={pending:'var(--dim)',on:'var(--cyn)',banked:'var(--yel)',dead:'var(--red)'}[c.status];
+ document.getElementById('vdetail').innerHTML=SELECTED?`<b>${c.label}</b><span class="st" style="color:${colr}">${c.status}</span> · feeds ${tix} · weight ${c.w}<br>${c.detail||c.note}`:'<b>Seventeen lights, waiting.</b>Every chip is one thing that has to happen. Tap any of them.';
+ renderVenn();renderVmobile();});
 const J2C={France:'FRA',Spain:'SPA',England:'ENG',Argentina:'ARG'};
 function spark(id){const H=DATA.history||[];const pts=H.map(x=>x.r&&x.r[id]?x.r[id][0]:null).filter(v=>v!=null);
  if(pts.length<2)return '<span class="mv" style="opacity:.55">rank history starts tonight</span>';
@@ -383,7 +436,7 @@ function render(){
  const day=Math.min(39,Math.max(1,Math.floor((Date.now()-Date.parse('2026-06-11T00:00:00Z'))/864e5)+1));
  const srcw=/kept last good|failed|too small/i.test(DATA.source||'')?' · \u26a0 '+DATA.source:'';
  document.getElementById('upd').textContent='DAY '+day+'/39 · updated '+new Date(DATA.generated_at).toLocaleString('en-GB',{weekday:'short',hour:'2-digit',minute:'2-digit'})+srcw;
- renderVenn();markFocus();
+ renderVenn();markFocus();renderVmobile();
 }
 function drawLB(lb,q){
  const ql=q.trim().toLowerCase();
@@ -434,6 +487,7 @@ function tickCountdowns(){
   el.textContent=h>48?('in '+Math.floor(h/24)+'d'):('in '+h+'h '+String(m).padStart(2,'0')+'m');});
 }
 setInterval(tickCountdowns,30000);
+document.querySelectorAll('#mnav button').forEach(b=>b.onclick=()=>{document.body.dataset.mtab=b.dataset.mt;document.querySelectorAll('#mnav button').forEach(x=>x.classList.toggle('on',x===b));window.scrollTo({top:0});});
 document.getElementById('q').addEventListener('input',e=>drawLB(rankify(DATA.leaderboard),e.target.value));
 document.getElementById('howbtn').onclick=()=>document.getElementById('modal').classList.add('open');
 document.getElementById('closem').onclick=()=>document.getElementById('modal').classList.remove('open');
